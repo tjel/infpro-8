@@ -9,7 +9,7 @@ int main()
 	int rad;
 	cout << "Enter the radius: \n";
 	cin >> rad;
-	cout << "Area of the circle is " << PI * rad * rad << "\n\n";
+	cout << "Area of the circle =" << PI * rad * rad << "\n\n";
 
 	return 0;
 }
