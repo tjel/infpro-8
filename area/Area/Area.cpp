@@ -6,10 +6,10 @@ using namespace std;
 int main()
 {
 	double PI = 3.1415; // variables can be initialized during declaration 
-	int rad;
+	int r;
 	cout << "Enter the radius: \n";
-	cin >> rad;
-	cout << "Area of the circle =" << PI * rad * rad << "\n\n";
+	cin >> r;
+	cout << "Area of the circle =" << PI * r * r << "\n\n";
 
 	return 0;
 }
