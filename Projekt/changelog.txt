@@ -1,0 +1,51 @@
+v0.01
+
+- Zaimplementowana Wyszukiwarka z podpowiedziami na ¿ywo przy u¿yciu ajaxa i widoków czêœciowych do renderowania powszczególnych pozycji
+  - ok³adki dodane do okna podpowiedzi
+  - dodane podœwietlanie wpisanego tekstu i mo¿liwoœæ przeszukiwania autorów
+  - wstêpne funkcje i walidacja wyszukiwarki dla w³aœciwej postrony z wyszukiwaniem zaawansownym (a nie tylko mini wersji dla pozosta³ych podstron)
+
+- Kontroler bazowy do wszystkich stron
+- Kontroler do strony g³ownej
+- Wstêpne modele wyszukiwania, ksi¹¿ki i u¿ytkownika
+- Walidacja wyszukiwania po stronie serwera: DataAnnotations (z uwzglêdnieniem w³asnych funkcji nadpisuj¹cych atrybuty)
+- Walidacja wyszukiwania po stronie klienta - w³asna funkcja w JavaScripcie
+- Wstêpny layout i style
+- Pliki i pakiety potrzebne do projektu
+- Wskazówki z podpowiedziami do wyszukiwania i walidacji w JQuery
+- Testowy plik SQL ze skryptem bazy danych w MySQL
+- Obs³uga bazy danych przy u¿yciu Entity Framework (Code First) i LINQ
+- Spinner podczas ³¹czenia z baz¹ i wyszukiwania
+- Funkcje kontroli dat w dowolnym formacie (do walidacji)
+
+Poprawione Bugi:
+- Pozycje oflagowane w bazie danych jako !IsPublic nie bêd¹ siê wiêcej wyœwietlaæ na liœcie wyników
+- Przy wczytywaniu s³owników dodane sprawdzanie pod k¹tem mo¿liwych NullReferenceEzceptions
+- Pole "uwzglêdnij autora" nie bêdzie wyœwietlane w widoku dla Book/Index z rozszerzon¹ wyszukiwark¹ (sam ten widok nie jest jeszcze zaimplementowany)
+- Poprawiony b³¹d wyszukiwarki, która pomy³kowo zwraca³a walidacjê przy pomocy unobtrusive javascriptu
+- dodane przekierowania do starszych wersji bibliotek w web.config
+- zbêdna logika z widoków przeniesiona do warstwy logiki
+- wskazówki do wyszukiwania pod firefoksem nie bêd¹ siê wyswietlaæ 10px w lewo od zamierzonej pozycji
+
+Prorytety do zrobienia:
+- TODO: Rozszerzona wyszukiwarka na ¿ywo w Book/Index
+- TODO: System logowania i rejestracji
+- TODO: Obs³uga b³êdów, gdy baza danych jest offline
+- TODO: Dokumentacja kodu
+
+Notki:
+- W³aœciwoœci po³¹czenia z baz¹ danych znajduj¹ siê w web.config, nale¿y ustawiæ dane do bazy danych stworzonej skryptem umieszczonym w repozytorium:
+
+  <connectionStrings>
+    <add name="DBCS" providerName="MySql.Data.MySqlClient" connectionString="server=localhost;database=project;uid=USER;password=PASSWORD"/>
+  </connectionStrings>
+
+- Ten commit ma stanowiæ pocz¹tkowy szablon do pracy z projektem
+- przekierowania i linki s¹ do kontrolerów, których jeszcze nie ma, dlatego nie bêd¹ póki co dzia³aæ
+
+Informacje o narzêdziach:
+- Visual Studio 2015
+  - Wszystkie zawarte pakiety s¹ w wersji najnowszej na 04-11-2015 (Nuget)
+- dbForge Studio for MySQL
+- mysql-connector-net-6.9.8.msi
+

@@ -1,0 +1,63 @@
+﻿@using MVCDemo.CustomHtmlHelpers
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    <link href="~/Content/themes/base/all.css" rel="stylesheet" />
+    <link href="~/Content/Styles.css" rel="stylesheet" />
+    <meta name="description" content="The description of my page" />
+</head>
+<body>
+
+    @* DEBUGOWANIE *@
+
+    <div id="divDebug">Wiadomości Debugowania<br /><br /></div>
+
+    @* =========== *@
+
+    <div id="Background"></div>
+    <div id="Main" class="container body-content">
+        @using (@Html.BeginForm("Index", "Book", FormMethod.Post, new { id = "frmSearch" }))
+        {
+            <div>
+                @{
+                    var controller = ViewContext.RouteData.GetRequiredString("controller");
+                    var action = ViewContext.RouteData.GetRequiredString("action");
+                    Html.RenderAction("GetSearchWidget", "Base", new { controller, action });
+                }
+
+                <input id="btnSearchSubmit" type="submit" value="Szukaj" />
+            </div>
+
+            <div id="divSearchOptions">
+
+            </div>
+        }
+
+        <div id="divSearchResults">
+
+        </div>
+
+        <br />
+
+        @RenderBody()
+
+        <div id="divError"></div>
+    </div>
+    <script src="~/Scripts/jquery-2.1.4.js"></script>
+    <script src="~/Scripts/jquery-ui-1.11.4.js"></script>
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.js"></script>
+    <script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
+    <script src="~/Scripts/jquery.cookie.js"></script>
+    <script src="~/Scripts/jhash-2.1.js"></script>
+    <script src="~/Scripts/attrchange.js"></script>
+    <script src="~/Scripts/moment.js"></script>
+    <script src="~/Scripts/Base/Index.js"></script>
+    @RenderSection("Scripts", false)
+</body>
+
+</html>
