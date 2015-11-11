@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="Models" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+  <EntityType Name="Book">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="Guid" Nullable="false" />
+    <Property Name="Title" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+    <Property Name="Category" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+    <Property Name="Description" Type="String" MaxLength="65535" FixedLength="false" Unicode="false" />
+    <Property Name="AuthorId" Type="Guid" />
+    <Property Name="Thumbnail" Type="String" MaxLength="257" FixedLength="false" Unicode="false" />
+    <Property Name="AdditionDate" Type="DateTime" />
+    <Property Name="IsPublic" Type="Boolean" />
+    <NavigationProperty Name="Author" Relationship="Self.tblbooks_ibfk_1" FromRole="tblbooks" ToRole="tblusers" />
+  </EntityType>
+  <EntityType Name="User">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="Guid" Nullable="false" />
+    <Property Name="UserName" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+    <Property Name="Password" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+    <Property Name="Email" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+    <Property Name="RegistrationDate" Type="DateTime" />
+    <Property Name="RetryAttempts" Type="Int32" />
+    <Property Name="IsLocked" Type="Int32" />
+    <Property Name="LockedDateTime" Type="DateTime" />
+    <NavigationProperty Name="Books" Relationship="Self.tblbooks_ibfk_1" FromRole="tblusers" ToRole="tblbooks" />
+  </EntityType>
+  <Association Name="tblbooks_ibfk_1">
+    <End Role="tblusers" Type="Models.User" Multiplicity="0..1" />
+    <End Role="tblbooks" Type="Models.Book" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="tblusers">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="tblbooks">
+        <PropertyRef Name="AuthorId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityContainer Name="ProjectDbContext" annotation:LazyLoadingEnabled="true">
+    <EntitySet Name="Books" EntityType="Models.Book" />
+    <EntitySet Name="Users" EntityType="Models.User" />
+    <AssociationSet Name="tblbooks_ibfk_1" Association="Self.tblbooks_ibfk_1">
+      <End Role="tblusers" EntitySet="Users" />
+      <End Role="tblbooks" EntitySet="Books" />
+    </AssociationSet>
+  </EntityContainer>
+</Schema>

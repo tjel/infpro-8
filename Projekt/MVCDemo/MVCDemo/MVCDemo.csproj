@@ -234,6 +234,7 @@
     <Compile Include="Common\MatchPropertiesAttribute.cs" />
     <Compile Include="Common\MinFirstStringLength.cs" />
     <Compile Include="Controllers\BaseController.cs" />
+    <Compile Include="Controllers\BookController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="CustomHtmlHelpers\CustomHtmlHelpers.cs" />
     <Compile Include="Global.asax.cs">
@@ -254,6 +255,10 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\_AutocompleteItem.cshtml" />
     <Content Include="Views\Shared\_SearchWidget.cshtml" />
+    <Content Include="Views\Book\Index.cshtml" />
+    <Content Include="Views\Book\_SearchOptions.cshtml" />
+    <Content Include="Views\Book\_SearchResults.cshtml" />
+    <Content Include="Views\Book\_SearchScrollResults.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

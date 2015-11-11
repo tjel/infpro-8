@@ -1,3 +1,22 @@
+v0.02
+
+- Background po stronie Serwera dla Kontrolera "Book"
+- Metody dla w³aœciwej wyszukiwarki, które bêd¹ wykonywane przy u¿yciu ajaxa
+- Widoki i widoki czêœciowe dla w³aœciwej wyszukiwarki
+- Zapamiêtywanie wyszukiwania w ci¹gu trwania sesji
+
+- Konsolowa aplikacja testowa dla bazy danych (EF Database First)
+
+Poprawione Bugi:
+- Redundantny i zagnie¿dzony kod wyczyszczony ReSharperem
+- Zmienne typów zast¹pione zmiennymi dynamicznymi (var) zgodnie z zaleceniem konwencji
+
+Priorytety do zrobienia:
+- TODO: Rozszerzona wyszukiwarka na ¿ywo w Book/Index - skrypty po stronie klienta
+- TODO: System logowania i rejestracji
+- TODO: Obs³uga b³êdów, gdy baza danych jest offline
+- TODO: Dokumentacja kodu
+
 v0.01
 
 - Zaimplementowana Wyszukiwarka z podpowiedziami na ¿ywo przy u¿yciu ajaxa i widoków czêœciowych do renderowania powszczególnych pozycji
@@ -27,7 +46,7 @@ Poprawione Bugi:
 - zbêdna logika z widoków przeniesiona do warstwy logiki
 - wskazówki do wyszukiwania pod firefoksem nie bêd¹ siê wyswietlaæ 10px w lewo od zamierzonej pozycji
 
-Prorytety do zrobienia:
+Priorytety do zrobienia:
 - TODO: Rozszerzona wyszukiwarka na ¿ywo w Book/Index
 - TODO: System logowania i rejestracji
 - TODO: Obs³uga b³êdów, gdy baza danych jest offline
@@ -43,9 +62,12 @@ Notki:
 - Ten commit ma stanowiæ pocz¹tkowy szablon do pracy z projektem
 - przekierowania i linki s¹ do kontrolerów, których jeszcze nie ma, dlatego nie bêd¹ póki co dzia³aæ
 
+=================================================================================================
+
 Informacje o narzêdziach:
 - Visual Studio 2015
-  - Wszystkie zawarte pakiety s¹ w wersji najnowszej na 04-11-2015 (Nuget)
+  - Wszystkie zawarte pakiety s¹ w wersji najnowszej na 11-11-2015 (Nuget)
 - dbForge Studio for MySQL
 - mysql-connector-net-6.9.8.msi
+- ReSharper
 
