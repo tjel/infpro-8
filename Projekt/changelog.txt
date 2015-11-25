@@ -1,3 +1,29 @@
+v0.03
+
+- Wyczyszczony i zoptymalizowany kod metody GetBooks(Search search) i metod zale¿nych
+- £adowanie opcji wyszukiwania przy u¿yciu ajaxa (z widoku MVC)
+- Funkcja formatuj¹ca szablon dla bezwzglêdnych divów z wynikami
+- Wyœwietlanie wiadomoœci przy scrollowaniu wyników
+- Funkcja zwracaj¹ca wszystkie divy dodawane dynamicznie
+- Funkcja nadaj¹ca ID i klasy dynamicznym elementom w locie
+- Funkcja binduj¹ca eventy divom z wynikami
+- Funkcja odpowiedzialna za wyœwietlanie i animacje dla ka¿dego pojedynczego rezultatu z wynikami
+
+- Konwersja pozosta³ych pêtli do LINQ
+- Konwersja niektórych zapytañ LINQ na ich odpowiednik dynamiczny (Dynamic.LINQ.dll)
+
+Poprawione Bugi:
+- Kolejne czyszczenie ReSharperem
+- Drobne poprawki i optymalizacje w kodzie Atrybutów w walidacji za pomoc¹ DataAnnotations
+
+Priorytety do zrobienia:
+- TODO: Rozszerzona wyszukiwarka na ¿ywo w Book/Index - Skrypty po stronie klienta - CI¥G DALSZY
+
+- TODO: Rozszerzenie funkcji formatuj¹cej wyniki o nowe w³aœciwosci obiektu
+- TODO: System logowania i rejestracji (EF6 + MySQL (XAMPP))
+- TODO: Obs³uga b³êdów, gdy baza danych jest offline
+- TODO: Dokumentacja kodu
+
 v0.02
 
 - Background po stronie Serwera dla Kontrolera "Book"
@@ -62,7 +88,7 @@ Notki:
 - Ten commit ma stanowiæ pocz¹tkowy szablon do pracy z projektem
 - przekierowania i linki s¹ do kontrolerów, których jeszcze nie ma, dlatego nie bêd¹ póki co dzia³aæ
 
-=================================================================================================
+============================================================================================================================================================================
 
 Informacje o narzêdziach:
 - Visual Studio 2015

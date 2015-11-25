@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace MVCDemo.Common
 {
-    class MatchPatternAttribute : ValidationAttribute
+    internal class MatchPatternAttribute : ValidationAttribute
     {
         public MatchPatternAttribute(params string[] strings)
         {

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MVCDemo.Common
 {
-    class MinFirstStringLength : ValidationAttribute
+    internal class MinFirstStringLength : ValidationAttribute
     {
         public MinFirstStringLength(int minLength, char separator)
         {

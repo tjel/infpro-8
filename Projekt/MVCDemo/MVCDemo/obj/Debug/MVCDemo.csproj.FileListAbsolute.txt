@@ -1216,6 +1216,7 @@ G:\Moje Pliki\Programowanie\C# (+ JS)\School\Projekt\MVCDemo\MVCDemo\bin\pl\Syst
 G:\Moje Pliki\Programowanie\C# (+ JS)\School\Projekt\MVCDemo\MVCDemo\obj\Debug\MVCDemo.dll
 G:\Moje Pliki\Programowanie\C# (+ JS)\School\Projekt\MVCDemo\MVCDemo\obj\Debug\MVCDemo.pdb
 G:\Moje Pliki\Programowanie\C# (+ JS)\School\Projekt\MVCDemo\MVCDemo\obj\Debug\MVCDemo.csprojResolveAssemblyReference.cache
+G:\Moje Pliki\Programowanie\C# (+ JS)\School\Projekt\MVCDemo\MVCDemo\bin\System.Linq.Dynamic.dll
 G:\Moje Pliki\Programowanie\C# (+ JS)\School\Projekt\for upload\MVCDemo\MVCDemo\bin\MVCDemo.dll.config
 G:\Moje Pliki\Programowanie\C# (+ JS)\School\Projekt\for upload\MVCDemo\MVCDemo\bin\MVCDemo.dll
 G:\Moje Pliki\Programowanie\C# (+ JS)\School\Projekt\for upload\MVCDemo\MVCDemo\bin\MVCDemo.pdb
@@ -1227,6 +1228,7 @@ G:\Moje Pliki\Programowanie\C# (+ JS)\School\Projekt\for upload\MVCDemo\MVCDemo\
 G:\Moje Pliki\Programowanie\C# (+ JS)\School\Projekt\for upload\MVCDemo\MVCDemo\bin\MySql.Data.Entity.EF6.dll
 G:\Moje Pliki\Programowanie\C# (+ JS)\School\Projekt\for upload\MVCDemo\MVCDemo\bin\MySql.Web.dll
 G:\Moje Pliki\Programowanie\C# (+ JS)\School\Projekt\for upload\MVCDemo\MVCDemo\bin\Newtonsoft.Json.dll
+G:\Moje Pliki\Programowanie\C# (+ JS)\School\Projekt\for upload\MVCDemo\MVCDemo\bin\System.Linq.Dynamic.dll
 G:\Moje Pliki\Programowanie\C# (+ JS)\School\Projekt\for upload\MVCDemo\MVCDemo\bin\System.Net.Http.Formatting.dll
 G:\Moje Pliki\Programowanie\C# (+ JS)\School\Projekt\for upload\MVCDemo\MVCDemo\bin\System.Web.Helpers.dll
 G:\Moje Pliki\Programowanie\C# (+ JS)\School\Projekt\for upload\MVCDemo\MVCDemo\bin\System.Web.Http.dll

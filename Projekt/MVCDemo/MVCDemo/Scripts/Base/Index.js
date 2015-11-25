@@ -654,7 +654,7 @@ $(document).ready(function () {
 
     // Autocomplete
 
-    function updateTextBox(event, ui) { // ReSharper disable once PossiblyUnassignedProperty
+    function updateTextBox(event, ui) {
         $(this).val(ui.item.Title);
         return false;
     }
@@ -783,7 +783,7 @@ $(document).ready(function () {
         if (endsWithAction || endsWithController) {
             e.preventDefault();
         }
-        else { // Jeśli nie jesteśmy w w Index/Book to Submit wysyła do Book/Index
+        else { // Jeśl,i nie jesteśmy w w Index/Book to Submit wysyła do Book/Index
             var currValues = {
                 searchterm: $("#txtSearch").val(),
                 includeauthor: $("#cbIncludeAuthor").prop("checked")

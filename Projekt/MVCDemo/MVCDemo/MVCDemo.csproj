@@ -67,6 +67,10 @@
       <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Linq.Dynamic, Version=1.0.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Linq.Dynamic.1.0.4\lib\net40\System.Linq.Dynamic.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Net.Http.Formatting, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.3\lib\net45\System.Net.Http.Formatting.dll</HintPath>
@@ -202,6 +206,7 @@
     <Content Include="Scripts\jhash-2.1.js" />
     <Content Include="Scripts\jhash-2.1.min.js" />
     <Content Include="Scripts\jquery.cookie.js" />
+    <Content Include="Scripts\Book\Index.js" />
     <Content Include="Scripts\Home\Index.js" />
     <Content Include="Scripts\jquery-2.1.4.js" />
     <Content Include="Scripts\jquery-2.1.4.min.js" />
@@ -234,8 +239,8 @@
     <Compile Include="Common\MatchPropertiesAttribute.cs" />
     <Compile Include="Common\MinFirstStringLength.cs" />
     <Compile Include="Controllers\BaseController.cs" />
-    <Compile Include="Controllers\BookController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\BookController.cs" />
     <Compile Include="CustomHtmlHelpers\CustomHtmlHelpers.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -254,10 +259,10 @@
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\_AutocompleteItem.cshtml" />
-    <Content Include="Views\Shared\_SearchWidget.cshtml" />
     <Content Include="Views\Book\Index.cshtml" />
-    <Content Include="Views\Book\_SearchOptions.cshtml" />
     <Content Include="Views\Book\_SearchResults.cshtml" />
+    <Content Include="Views\Book\_SearchOptions.cshtml" />
+    <Content Include="Views\Shared\_SearchWidget.cshtml" />
     <Content Include="Views\Book\_SearchScrollResults.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>

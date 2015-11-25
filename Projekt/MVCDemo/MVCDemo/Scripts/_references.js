@@ -2,6 +2,7 @@
 /// <reference path="additional-methods.min.js" />
 /// <reference path="attrchange.js" />
 /// <reference path="base/index.js" />
+/// <reference path="book/Index.js" />
 /// <reference path="home/index.js" />
 /// <reference path="jhash-2.1.min.js" />
 /// <reference path="jquery.cookie.js" />

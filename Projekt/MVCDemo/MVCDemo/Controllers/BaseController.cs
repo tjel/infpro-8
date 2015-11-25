@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic;
 using System.Web.Mvc;
 using MVCDemo.Models;
 using System.Web.Script.Serialization;
@@ -46,41 +47,24 @@ namespace MVCDemo.Controllers
 
         protected List<Book> GetBooks(Search search)
         {
-            //var cs = ConfigurationManager.ConnectionStrings["DBCS"].ConnectionString;
-            //var con = new MySqlConnection(cs);
-
             var db = new ProjectDbContext();
-            //var books = db.Books.Include(x => x.Author).ToList();
-            var books = db.Books.ToList(); // bez include bo jsonserilizer stworzyłby nieskończoną pętlę przy serializacji obiektu: Book > User > Books ...
+            var books = db.Books; 
+            
+            var listTerms = search.SearchTerm.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries)
+                .Where(s => s.Length >= 3).ToList();
 
-            string[] separators = { " " };
-            var listTerms = search.SearchTerm.Split(separators, StringSplitOptions.RemoveEmptyEntries).ToList();
-            listTerms = listTerms.Where(s => s.Length >= 3).ToList();
+            var searchedBooks = books.AsEnumerable()
+                .Where(book => CheckWhatToSearch(book, search, listTerms));
 
-            books = books.Where(book => CheckWhatToSearch(book, search, listTerms)).ToList();
+            var sortedBooks = search.SortOrder.ToLower() == "asc" ? 
+                searchedBooks.OrderBy(search.SortBy) : 
+                searchedBooks.OrderBy(search.SortBy).Reverse();
 
-            var p = typeof(Book).GetProperties().Single(prop => 
-                prop.Name.Equals(search.SortBy.ToLower() == "default" ? 
-                    "name" : 
-                    search.SortBy, StringComparison.OrdinalIgnoreCase));
+            var pagedBooks = search.HowMuchSkip >= 0 ?
+                sortedBooks.Skip(search.HowMuchSkip).Take(search.HowMuchTake) :
+                new List<Book>();
 
-            if (new[] { "asc" }.Any(search.SortOrder.ToLower().Contains))
-                books = books.OrderBy(x => p.GetValue(x, null)).ToList();
-            else if (search.SortOrder.ToLower() == "desc")
-                books = books.OrderByDescending(x => p.GetValue(x, null)).ToList();
-
-            if (search.HowMuchSkip >= 0)
-            {
-                books = books
-                    .Skip(search.HowMuchSkip)
-                    .Take(search.HowMuchTake).ToList();
-            }
-            else
-            {
-                books = new List<Book>();
-            }
-
-            return books;
+            return pagedBooks.ToList();
         }
 
         private static bool CheckWhatToSearch(Book book, Search search, List<string> listTerms)

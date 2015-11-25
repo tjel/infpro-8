@@ -40,17 +40,11 @@ namespace MVCDemo.Common
 
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            var props = value.GetType().GetProperties().Where(p => p.PropertyType == Type && !this.ExcludedProperties.Contains(p.Name));
+            var props = value.GetType().GetProperties()
+                .Where(p => p.PropertyType == Type && !ExcludedProperties.Contains(p.Name));
             
-            foreach (var property in props)
-            {
-                if ((bool)property.GetValue(value, null) == true)
-                {
-                    return ValidationResult.Success;
-                }
-            }
-
-            return new ValidationResult(this.FormatErrorMessage(validationContext.DisplayName));
+            return props.Any(property => (bool)property.GetValue(value, null)) ? 
+                ValidationResult.Success : new ValidationResult(FormatErrorMessage(validationContext.DisplayName));
         }
     }
 }
