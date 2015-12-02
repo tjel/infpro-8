@@ -34,3 +34,6 @@ G:\Moje Pliki\Programowanie\C# (+ JS)\School\Projekt\test\ConsoleApplication1\Co
 G:\Moje Pliki\Programowanie\C# (+ JS)\School\Projekt\test\ConsoleApplication1\ConsoleApplication1\obj\Debug\ConsoleApplication1.csprojResolveAssemblyReference.cache
 G:\Moje Pliki\Programowanie\C# (+ JS)\School\Projekt\test\ConsoleApplication1\ConsoleApplication1\obj\Debug\ConsoleApplication1.exe
 G:\Moje Pliki\Programowanie\C# (+ JS)\School\Projekt\test\ConsoleApplication1\ConsoleApplication1\obj\Debug\ConsoleApplication1.pdb
+G:\Moje Pliki\Programowanie\C# (+ JS)\School\Projekt\test\test EF z MySQL\ConsoleApplication1\ConsoleApplication1\bin\Debug\ConsoleApplication1.exe.config
+G:\Moje Pliki\Programowanie\C# (+ JS)\School\Projekt\test\test EF z MySQL\ConsoleApplication1\ConsoleApplication1\obj\Debug\ConsoleApplication1.exe
+G:\Moje Pliki\Programowanie\C# (+ JS)\School\Projekt\test\test EF z MySQL\ConsoleApplication1\ConsoleApplication1\obj\Debug\ConsoleApplication1.pdb

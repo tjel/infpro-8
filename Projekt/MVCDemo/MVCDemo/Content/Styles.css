@@ -36,13 +36,9 @@ sup {
     vertical-align: baseline;
 }
 
-sup {
-    top: -0.5em;
-}
+sup { top: -0.5em; }
 
-sub {
-    bottom: -0.25em;
-}
+sub { bottom: -0.25em; }
 
 body, p, table, tr, td {
     margin: 0;
@@ -95,9 +91,7 @@ table, tr, td, th, tbody {
     border-spacing: 0;
 }
 
-fieldset {
-    border: 1px solid black;
-}
+fieldset { border: 1px solid black; }
 
 textarea {
     width: 30em;
@@ -121,9 +115,7 @@ input[type=text] {
     font-size: 16px;
 }
 
-    input[type=text]:focus {
-        border: 1px solid white;
-    }
+input[type=text]:focus { border: 1px solid white; }
 
 input[type=button], input[type=submit] {
     background-color: transparent;
@@ -132,9 +124,7 @@ input[type=button], input[type=submit] {
     font-size: 16px;
 }
 
-input[type="checkbox"] {
-    display: none;
-}
+input[type="checkbox"] { display: none; }
 
 input[type="checkbox"] ~ label span {
     display: inline-block;
@@ -158,9 +148,7 @@ input[type="checkbox"]:checked ~ label span {
     font-weight: bold;
 }
 
-.field-validation-valid {
-    display: none;
-}
+.field-validation-valid { display: none; }
 
 input.input-validation-error {
     border: 1px solid red;
@@ -172,13 +160,9 @@ input.input-validation-error {
     font-weight: bold;
 }
 
-    .validation-summary-errors ul {
-        margin: 12px 0 12px 12px;
-    }
+.validation-summary-errors ul { margin: 12px 0 12px 12px; }
 
-.validation-summary-valid {
-    display: none;
-}
+.validation-summary-valid { display: none; }
 
 /* Autocomplete */
 
@@ -186,8 +170,8 @@ input.input-validation-error {
 
 .ui-state-active,
 .ui-widget-content .ui-state-active,
-.ui-widget-header .ui-state-active, 
-.ui-autocomplete, .ui-autocomplete:hover, 
+.ui-widget-header .ui-state-active,
+.ui-autocomplete, .ui-autocomplete:hover,
 .ui-menu-item, .ui-menu-item:hover,
 .ui-menu-item a, .ui-menu-item a:hover,
 .ui-widget-content .ui-state-focus,
@@ -196,13 +180,13 @@ input.input-validation-error {
 .ui-widget-header .ui-state-hover,
 .ui-menu .ui-menu-item a.ui-state-focus,
 .ui-menu .ui-menu-item a.ui-state-active,
-.ui-menu .ui-menu-item a { 
-    background: transparent none no-repeat; 
-    padding:0;
-    margin:0;
-    display:block;
-    border:0;
-    border-collapse:collapse;
+.ui-menu .ui-menu-item a {
+    background: transparent none no-repeat;
+    padding: 0;
+    margin: 0;
+    display: block;
+    border: 0;
+    border-collapse: collapse;
 }
 
 /* Autocomplete Style */
@@ -332,18 +316,14 @@ input.input-validation-error {
 
 /* SEARCH OPTIONS */
 
-.line_placeholder {
-    height: 20px;
-}
+.line_placeholder { height: 20px; }
 
 #spanSearchOptionsTitle {
     color: blue;
     font-size: 18px;
 }
 
-#tableSearchOptions {
-
-}
+#tableSearchOptions { }
 
 #tableSearchOptions td {
     vertical-align: middle;
@@ -363,8 +343,10 @@ input.input-validation-error {
 #divBooksScrollUp {
     width: 60px;
     height: 60px;
+    -ms-background-size: contain;
     background-size: contain;
     background-image: url('../Images/scroll_up_arrow.png');
+    -ms-opacity: 0.6;
     opacity: 0.6;
 }
 
@@ -379,15 +361,12 @@ input.input-validation-error {
     opacity: 0.6;
 }
 
-#divSearchResults {
-    position: absolute;
-}
+#divSearchResults { position: absolute; }
 
-#divSearchResults a {
-    text-decoration: none;
-}
+#divSearchResults a { text-decoration: none; }
 
 .searchresult_background {
+    -ms-background-size: cover;
     background-size: cover;
     background-position: center top;
     background-repeat: no-repeat;
@@ -400,11 +379,12 @@ input.input-validation-error {
     -o-transition: background-image 1s ease-in-out;*/
 }
 
-    /*.searchresult_background.hovered {
+/*.searchresult_background.hovered {
         background-size: auto 260px;
     }*/
 
 .searchresult_cover {
+    -ms-background-size: cover;
     background-size: cover;
     background-position: center top;
     background-repeat: no-repeat;
@@ -433,13 +413,9 @@ input.input-validation-error {
     position: absolute;
 }
 
-.searchresult_container table {
-    margin: 5px;
-}
+.searchresult_container table { margin: 5px; }
 
-.searchresult_container div {
-    /*border: 1px solid white;*/
-}
+.searchresult_container div { /*border: 1px solid white;*/ }
 
 .searchresult_item_title {
     font-weight: bold;
@@ -478,6 +454,7 @@ input.input-validation-error {
     overflow: hidden;
     display: inline-block;
     position: absolute;
+    -ms-opacity: 0.8;
     opacity: 0.8;
     background-color: black;
     z-index: 3;
@@ -494,12 +471,14 @@ input.input-validation-error {
     background-image: url('../Images/right_arrow.png');
     background-repeat: no-repeat;
     background-position: right center;
+    -ms-background-size: auto 20px;
     background-size: auto 20px;
     margin-top: 12px;
 }
 
 #divNoSearchResults {
     z-index: 5;
+    -ms-opacity: 0.8;
     opacity: 0.8;
     background-color: black;
 }
@@ -541,39 +520,40 @@ input.input-validation-error {
 </div>*/
 
 .ui-selectmenu-menu {
-	padding: 0;
-	margin: 0;
-	position: absolute;
-	top: 0;
-	left: 0;
-	display: none;
+    padding: 0;
+    margin: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: none;
 }
 
 .ui-selectmenu-menu .ui-menu {
-	overflow: auto;
-	/* Support: IE7 */
-	overflow-x: hidden;
-	padding-bottom: 1px;
+    overflow: auto;
+    /* Support: IE7 */
+    overflow-x: hidden;
+    padding-bottom: 1px;
     font-size: 14px;
 }
+
 .ui-selectmenu-menu .ui-menu .ui-selectmenu-optgroup {
-	font-size: 1em;
-	font-weight: bold;
-	line-height: 1;
-	padding: 2px 0.4em;
-	margin: 0.5em 0 0 0;
-	height: auto;
-	border: 0;
+    font-size: 1em;
+    font-weight: bold;
+    line-height: 1;
+    padding: 2px 0.4em;
+    margin: 0.5em 0 0 0;
+    height: auto;
+    border: 0;
 }
-.ui-selectmenu-open {
-	display: block;
-}
+
+.ui-selectmenu-open { display: block; }
+
 .ui-selectmenu-button {
-	display: inline-block;
-	overflow: hidden;
-	position: relative;
-	text-decoration: none;
-	cursor: pointer;
+    display: inline-block;
+    overflow: hidden;
+    position: relative;
+    text-decoration: none;
+    cursor: pointer;
     color: yellow;
     background: transparent none no-repeat;
     padding: 0;
@@ -581,11 +561,11 @@ input.input-validation-error {
 }
 
 .ui-selectmenu-button.ui-state-hover {
-	display: inline-block;
-	overflow: hidden;
-	position: relative;
-	text-decoration: none;
-	cursor: pointer;
+    display: inline-block;
+    overflow: hidden;
+    position: relative;
+    text-decoration: none;
+    cursor: pointer;
     color: yellow;
     background: #011c37 none no-repeat;
     padding: 0;
@@ -593,20 +573,22 @@ input.input-validation-error {
 }
 
 .ui-selectmenu-button span.ui-icon {
-	right: 0.5em;
-	left: auto;
-	margin-top: -8px;
-	position: absolute;
-	top: 50%;
+    right: 0.5em;
+    left: auto;
+    margin-top: -8px;
+    position: absolute;
+    top: 50%;
 }
+
 .ui-selectmenu-button span.ui-selectmenu-text {
-	text-align: left;
-	padding: 0.4em 2.1em 0.4em 1em;
-	display: block;
-	line-height: 1;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
+    text-align: left;
+    padding: 0.4em 2.1em 0.4em 1em;
+    display: block;
+    line-height: 1;
+    overflow: hidden;
+    -moz-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     font-size: 14px;
 }
 
@@ -629,39 +611,42 @@ input.input-validation-error {
 .ui-state-default .ui-icon.custom-icon-down-arrow {
     background-repeat: no-repeat;
     background-image: url('../Images/down_arrow.png');
+    -ms-background-size: contain;
     background-size: contain;
 }
 
 /* DEBUGOWANIE */
 
 #divDebug {
-    background-color: #202020; 
-    border: 1px solid white; 
-    position: absolute; 
-    left: 20px; 
+    background-color: #202020;
+    border: 1px solid white;
+    position: absolute;
+    left: 20px;
     top: 20px;
     min-height: 16px;
+    -moz-min-width: 200px;
+    -ms-min-width: 200px;
+    -o-min-width: 200px;
+    -webkit-min-width: 200px;
     min-width: 200px;
     padding: 10px;
     font-size: 16px;
 }
 
 #divDebug_Search {
-    border: 1px solid green; 
+    border: 1px solid green;
     padding: 10px;
 }
 
-/* Books */
+/* BOOKS */
 
-#divListBooks {
-    /*border: 1px solid yellow;*/
-}
+#divListBooks { /*border: 1px solid yellow;*/ }
 
 #divListBooks:after { /* zachowanie wysokości bloku z elementami float w środku */
-   content: " ";
-   display: block; 
-   height: 0; 
-   clear: both;
+    content: " ";
+    display: block;
+    height: 0;
+    clear: both;
 }
 
 .book_row {

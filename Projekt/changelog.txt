@@ -1,3 +1,23 @@
+v0.04
+
+- Funkcja obs³uguj¹ca scrollowanie i paging po stronie klienta z u¿yciem ajaxa
+- Funkcja przywracaj¹ca elementy po zdarzeniu scrollowania
+- Funkcja formatuj¹ca i animuj¹ca zestaw wyników scrollowania jako ca³oœæ po i podczas scrollowania
+- Funkcja formatuj¹ca i animuj¹ca zestaw wyników wyszukiwania jako ca³oœæ
+- Funkcja implementuj¹ca przeszukiwanie bazy danych na ¿ywo na podstawie parametrówe wskazanych w kontrolkach JQuery UI
+- Obs³uga i wywo³ywanie eventów zwi¹zanych z powy¿szymi funkcjami
+- Dynamiczne ustawianie rozmiaru niektórych elementów zgodnie z zawartoœci¹ wyników
+- Dodany vendor specific CSS
+- Wstêpny szkielet rozwijanego opisu w wynikach wyszukiwania (nieskoñczony, w widoku czyste kontenery z zawartoœci¹)
+
+Priorytety do zrobienia:
+- TODO: Rozwijany opis w wynikach wyszukiwania
+
+- TODO: Rozszerzenie funkcji formatuj¹cej wyniki o nowe w³aœciwosci obiektu
+- TODO: System logowania i rejestracji (EF6 + MySQL (XAMPP), Unobtrusive JS + DataAnnotations, uwierzytelnianie, autoryzacja i uprawnienia)
+- TODO: Obs³uga b³êdów, gdy baza danych jest offline
+- TODO: Ukoñczenie dokumentacji kodu
+
 v0.03
 
 - Wyczyszczony i zoptymalizowany kod metody GetBooks(Search search) i metod zale¿nych
