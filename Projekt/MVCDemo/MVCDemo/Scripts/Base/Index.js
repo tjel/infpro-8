@@ -1,11 +1,16 @@
-﻿// DEBUGOWANIE
+﻿
 
-var debugMode = true;
+// DEBUGOWANIE
+
+var debugMode = false;
 
 // Zmienne
 
 var $divMain = $("#Main");
+// localhost
 var siteroot = "/MVCDemo";
+// interaktywneksiazki.azurewebsites.net
+//var siteroot = "";
 
 // - walidacja - wiadomości
 
@@ -172,7 +177,7 @@ function validateSearchProperties(args) {
         if (isNullOrEmpty(currValues[currProp])) {
             vResults[currProp] = new ValidationResult(true, "null_or_empty", msgSearchTermInitial, colorInformation);
         }
-        else if (!currValues.searchterm.match(/^[a-zA-Z ĄąĆćĘęŁłŃńÓóŚśŹźŻż]*$/)) {
+        else if (!currValues.searchterm.match(/^[a-zA-Z ĄąĆćĘęŁłŃńÓóŚśŹźŻż:]*$/)) {
             vResults[currProp] = new ValidationResult(false, "invalid_chars", msgSearchTermInvalidCharacters, colorInvalid);
         }
         else {
@@ -476,7 +481,7 @@ function fixTooltipPosition() {
 
 // Search i Autocomplete
 
-function toggleSpinner(option) {
+function toggleSearchFieldSpinner(option) {
     var bgImage = "url('Images/Loading/loading1.gif')";
     var bgNone = "none";
 
@@ -489,7 +494,7 @@ function toggleSpinner(option) {
                 return bgNone;
             }
             else {
-                alert("toggleSpinner - podana opcja jest nieprawidłowa. ");
+                alert("toggleSearchFieldSpinner - podana opcja jest nieprawidłowa. ");
                 return bgNone;
             }
         }
@@ -531,7 +536,36 @@ function keysToLowerCase(obj) {
     //return obj.replace(/"([^"]+)":/g, function ($0, $1) { return ('"' + $1.toLowerCase() + '":'); });
 }
 
-
+(function ($) {
+    $.eventReport = function (selector, root) {
+        var s = [];
+        $(selector || "*", root).andSelf().each(function () {
+            // the following line is the only change
+            var e = $.data(this, "events");
+            if (!e) return;
+            s.push(this.tagName);
+            if (this.id) s.push("#", this.id);
+            if (this.className) s.push(".", this.className.replace(/ +/g, "."));
+            for (var p in e) {
+                if (e.hasOwnProperty(p)) {
+                    var r = e[p],
+                        h = r.length - r.delegateCount;
+                    if (h)
+                        s.push("\n", h, " ", p, " handler", h > 1 ? "s" : "");
+                    if (r.delegateCount) {
+                        for (var q = 0; q < r.length; q++)
+                            if (r[q].selector) s.push("\n", p, " for ", r[q].selector);
+                    }
+                }
+            }
+            s.push("\n\n");
+        });
+        return s.join("");
+    }
+    $.fn.eventReport = function (selector) {
+        return $.eventReport(selector, this);
+    }
+})(jQuery);
 
 $(document).ready(function () {
 
@@ -582,16 +616,31 @@ $(document).ready(function () {
         }
     });
 
-    $("#Background").center({ vertical: false });
+    // Menu Wyszukiwania - Formatowanie
 
-    $(window).on("resize", function () {
-        $("#Background").center({ transition: 0, vertical: false });
-        resizeBackground();
-    });
+    function formatSearchMenu() {
+        var $divMenuContainer = $("#divMenuContainer");
 
-    $divMain.find("*").on("attrchange", function () {
-        resizeBackground();
-    });
+        $divMenuContainer.css({
+            "height": $("#divSearchWidget").innerHeight()
+        });
+
+        $("#divSearchWidget").position({
+            my: "left top",
+            at: "left top",
+            of: $divMenuContainer,
+            collision: "none"
+        });
+
+        $("#divSearchOptions").position({
+            my: "left top",
+            at: "left bottom",
+            of: $(".books_scrollbar")[0] ? $(".books_scrollbar").first() : ("#divSearchWidget")/*$("#divSearchWidget")*/,
+            collision: "none"
+        });
+    }
+
+    formatSearchMenu();
 
     // Animacje
 
@@ -661,7 +710,7 @@ $(document).ready(function () {
 
     $("#txtSearch").autocomplete({
         search: function (/*event, ui*/) {
-            toggleSpinner("show");
+            toggleSearchFieldSpinner("show");
         },
         source: function (request, response) {
             var validation = validateSearchProperties({
@@ -684,7 +733,7 @@ $(document).ready(function () {
                     }),
                     dataType: "json",
                     success: function (data) {
-                        if (data.length === 0) {
+                        if (data.length === 0) { // jeśli nie ma wyników lub fallback jeśli błąd połączenia z bazą
                             refreshTooltip({
                                 isValidatedBy: validation,
                                 areAnyResults: false
@@ -699,12 +748,12 @@ $(document).ready(function () {
                             $("#txtSearch").tooltip("close");
                             $("#txtSearch").tooltip("disable");
                         }
-                        toggleSpinner("hide");
+                        toggleSearchFieldSpinner("hide");
                         //data["AdditionDate"] = JSON.parse(data.AdditionDate);
                         response(data);
                     },
                     error: function (err) {
-                        toggleSpinner("hide");
+                        toggleSearchFieldSpinner("hide");
                         $("html").html(err.responseText);
                     }
                 });
@@ -721,7 +770,7 @@ $(document).ready(function () {
                 if (isHovered) {
                     $("#txtSearch").tooltip("open");
                 }
-                toggleSpinner("hide");
+                toggleSearchFieldSpinner("hide");
                 response();
             }
         },
@@ -772,7 +821,7 @@ $(document).ready(function () {
         };
 
     $("#frmSearch").submit(function (e) {
-        //$(e.target).find("input[type='hidden'][name='includeAuthor']").detach(); // usuwa przed wysłaniem hidden element tworzony dla każdego checknboxa przez MVC, żeby nie było podwójnych wartości Query Stringów, wartość pola hidden pozwala otrzymać controllerowi wartość checkboxa jeśli jest false // komentarz, bo nie używam obecnie w projekcie querystringów to przekazywania wartości tego formularza
+        //$(e.target).find("input[type='hidden'][name='includeAuthor']").detach(); // usuwa przed wysłaniem hidden element tworzony dla każdego checknboxa przez MVC, żeby nie było podwójnych wartości Query Stringów, wartość pola hidden pozwala otrzymać controllerowi wartość checkboxa jeśli jest false // komentarz, bo nie używam obecnie w projekcie querystringów do przekazywania wartości tego formularza
         var address = window.location.href;
         var controller = "Book";
         var action = "Index";
@@ -780,10 +829,10 @@ $(document).ready(function () {
         var endsWithAction = address.endsWith("/" + controller + "/" + action) || address.indexOf("/" + controller + "/" + action + "?") > -1 || address.indexOf("/" + controller + "/" + action + "#") > -1;
         var endsWithController = address.endsWith("/" + controller) || address.indexOf("/" + controller + "?") > -1 || address.indexOf("/" + controller + "#") > -1;
 
-        if (endsWithAction || endsWithController) {
+        if (endsWithAction || endsWithController) { // Jeśli jesteśmy w index book, zdarzenie z Book/Index.js implementuje ten event, czyli program tutaj nie robi nic
             e.preventDefault();
         }
-        else { // Jeśl,i nie jesteśmy w w Index/Book to Submit wysyła do Book/Index
+        else { // Jeśli nie jesteśmy w w Index/Book to Submit wysyła do Book/Index
             var currValues = {
                 searchterm: $("#txtSearch").val(),
                 includeauthor: $("#cbIncludeAuthor").prop("checked")
@@ -801,5 +850,24 @@ $(document).ready(function () {
                 $("#btnSearchSubmit").prop("disabled", true);
             }
         }
+    });
+
+    // Formatowanie tła
+
+    //$("#Background").center({ vertical: false });
+    $("#Background").position({ my: "center top", at: "center top", of: $(window) });
+    //$("#Main").center({ vertical: false });
+
+    $(window).on("resize", function () {
+        //$("#Background").center({ transition: 0, vertical: false });
+        $("#Background").position({ my: "center top", at: "center top", of: $(window) });
+        //$("#Main").center({ vertical: false });
+        resizeBackground();
+    });
+
+    $divMain.find("*").on("attrchange", function () {
+        //$("#Background").center({ vertical: false });
+        $("#Background").position({ my: "center top", at: "center top", of: $(window) });
+        resizeBackground();
     });
 });

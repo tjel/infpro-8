@@ -1,22 +1,26 @@
+using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity.Spatial;
+
 
 namespace MVCDemo.Models
 {
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
-    using System.Data.Entity.Spatial;
-
     [Table("project.tblusers")]
-    public sealed partial class User
+    public sealed class User
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        [SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public User()
         {
             Books = new HashSet<Book>();
         }
+        
+        //public byte[] IdBinary { get; private set; }
 
+        //[NotMapped]
         public Guid Id { get; set; }
 
         [StringLength(100)]
@@ -36,7 +40,7 @@ namespace MVCDemo.Models
 
         public DateTime? LockedDateTime { get; set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         //[JsonIgnore]
         public ICollection<Book> Books { get; set; }
     }

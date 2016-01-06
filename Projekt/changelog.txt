@@ -1,3 +1,30 @@
+v0.05
+
+- Strona udostêpniona na platformie AZURE - http://interaktywneksiazki.azurewebsites.net/Book
+- obs³uga i fallbacki wyj¹tków zwi¹zanych z baz¹ danych
+- fix scrollowania
+- tabele maj¹ dok³adne guidy z regexem
+- zaaktualizowany opis, dodany i sformatowany w widoku
+- dodane metody i skrypty do obs³ugi urz¹dzeñ mobilnych, sama obs³uga NYI
+- baza danych utf8
+- logika przeniesiona na MySQL Server (kod zastapiony procedurami sk³adowanymi)
+- dodane spinnery podczas wyszukiwania
+- wy³¹czanie GUI podczas scrollowania - rozwi¹zanie b³êdu innych wartoœci sesji i innych wartoœci dla scrolla
+- eventy nadawane przed wywo³aniem animacji podczas przewijania nie bêd¹ mo¿liwe do wykonania dopóki animacja siê nie zakoñczy
+- usuniêty redundantny kod w widokach czêœciowych dla przewijania i wyszukiwania
+- dane testowe
+
+FIXY:
+- orderbydescending w dynamic LINQ - https://stackoverflow.com/questions/9686931/system-linq-dynamic-does-not-support-orderbydescendingsomecolumn
+- du¿o innych poprawek, których nie pamiêtam
+
+TODO:
+- System logowania i rejestracji
+- Animowane Menu Strony
+- W³aœciwy System edycji ksi¹¿ek interaktywnych
+- Layout
+- Ukoñczenie dokumentacji kodu
+
 v0.04
 
 - Funkcja obs³uguj¹ca scrollowanie i paging po stronie klienta z u¿yciem ajaxa

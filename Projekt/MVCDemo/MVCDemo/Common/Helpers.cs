@@ -5,6 +5,10 @@ using System.Web;
 using System.Reflection;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Entity.Core.Objects.DataClasses;
+using System.Data.Entity.Core.Objects;
+using System.Text;
+using Newtonsoft.Json.Linq;
 
 namespace MVCDemo.Common
 {
@@ -60,4 +64,5 @@ namespace MVCDemo.Common
             return metaProperty == null ? null : GetAttributeDisplayName(metaProperty);
         }
     }
+
 }

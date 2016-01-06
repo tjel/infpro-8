@@ -62,7 +62,7 @@ namespace MVCDemo.Models
         private int _howMuchSkip;
         private int _howMuchTake;
 
-        [RegularExpression(@"^[a-zA-Z ĄąĆćĘęŁłŃńÓóŚśŹźŻż]*$")]
+        [RegularExpression(@"^[a-zA-Z ĄąĆćĘęŁłŃńÓóŚśŹźŻż:]*$")]
         [MinFirstStringLength(3, ' ', ErrorMessage = "Wyszukiwane frazy muszą mieć co najmniej 3 znaki. ")]
         [DisplayName("Przeszukaj Menu: ")]
         public string SearchTerm

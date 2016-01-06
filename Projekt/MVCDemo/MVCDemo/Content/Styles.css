@@ -50,12 +50,14 @@ body, p, table, tr, td {
 div#Main {
     width: 1004px;
     margin: 0 auto;
+    position: relative;
     margin-top: 0;
     min-height: 780px;
     padding: 10px;
 }
 
 div#Background {
+    position: absolute;
     width: 1024px;
     margin: 0 auto;
     margin-top: 0;
@@ -64,6 +66,26 @@ div#Background {
     opacity: 0.8;
     min-height: 800px;
     z-index: -1;
+}
+
+.view-switcher {
+    position: relative;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    font-weight: normal;
+    color: white;
+    font-size: 16px;
+    -ms-opacity: 1;
+    opacity: 1;
+    background-color: #202020;
+    z-index: 3;
+    padding: 5px;
+    margin-bottom: 10px;
+}
+
+.view-switcher a {
+    color: #ffff00;
 }
 
 .divStyle {
@@ -314,51 +336,79 @@ input.input-validation-error {
     font-size: 12px;
 }
 
-/* SEARCH OPTIONS */
+/* SEARCH MENU */
 
-.line_placeholder { height: 20px; }
-
-#spanSearchOptionsTitle {
-    color: blue;
-    font-size: 18px;
+#divMenuContainer {
+    background-color: #000020;
+    height: 100px;
 }
 
-#tableSearchOptions { }
+    /* SEARCH WIDGET */
 
-#tableSearchOptions td {
-    vertical-align: middle;
-    color: white;
-    padding: 0;
-    /*border: 1px solid green;*/
-    border-collapse: collapse;
-}
+    #divSearchWidget {
+        position: absolute;
+    }
+
+    /* SEARCH OPTIONS */
+
+    #divSearchOptions {
+        position: absolute;
+    }
+
+    .line_placeholder {
+         height: 10px;
+    }
+
+    #spanSearchOptionsTitle {
+        color: blue;
+        font-size: 18px;
+    }
+
+    #tableSearchOptions { }
+
+    #tableSearchOptions td {
+        vertical-align: middle;
+        color: white;
+        padding: 0;
+        /*border: 1px solid green;*/
+        border-collapse: collapse;
+    }
 
 /* SEARCH RESULTS */
 
-#divBooksScrollBar {
-    position: absolute;
+.div_books_scrollup {
+    /*position: absolute;*/
+    display: inline-block;
     cursor: pointer;
-}
-
-#divBooksScrollUp {
     width: 60px;
     height: 60px;
     -ms-background-size: contain;
     background-size: contain;
-    background-image: url('../Images/scroll_up_arrow.png');
+    background-image: url('../Images/up_arrow.png');
+    background-position: center center;
+    background-repeat: no-repeat;
     -ms-opacity: 0.6;
     opacity: 0.6;
 }
 
-#divBooksScrollDown {
-    margin-top: 15px;
+.div_books_scrolldown {
+    /*position: absolute;*/
+    display: inline-block;
+    cursor: pointer;
     width: 60px;
     height: 60px;
     -ms-background-size: contain;
     background-size: contain;
-    background-image: url('../Images/scroll_down_arrow.png');
+    background-image: url('../Images/down_arrow.png');
+    background-position: center center;
+    background-repeat: no-repeat;
     -ms-opacity: 0.6;
     opacity: 0.6;
+}
+
+.books_scrollbar {
+    height: 60px;
+    background-color: #202020;
 }
 
 #divSearchResults { position: absolute; }
@@ -390,9 +440,9 @@ input.input-validation-error {
     background-repeat: no-repeat;
     z-index: 5;
     position: absolute;
-    background: transparent;
-    -ms-opacity: 1;
-    opacity: 1;
+    /*background: blue;*/
+    -ms-opacity: 0.2;
+    opacity: 0.2;
 }
 
 .searchresult_content_background {
@@ -476,7 +526,24 @@ input.input-validation-error {
     margin-top: 12px;
 }
 
+.searchresult_item_description {
+    position: absolute;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    font-weight: normal;
+    color: white;
+    font-size: 16px;
+    -ms-opacity: 1;
+    opacity: 1;
+    background-color: #202020;
+    z-index: 4;
+    padding: 5px;
+    border: 1px solid blue;
+}
+
 #divNoSearchResults {
+    position: absolute;
     z-index: 5;
     -ms-opacity: 0.8;
     opacity: 0.8;

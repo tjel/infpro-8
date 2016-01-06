@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<parameters>
+  <parameter name="DBCS-Web.config Connection String" description="DBCS Parametry połączenia używane w pliku web.config przez aplikację w celu uzyskiwania dostępu do bazy danych." defaultValue="&#xD;&#xA;        server=eu-cdbr-azure-north-d.cloudapp.net; &#xD;&#xA;        database=acsm_83413bf3a3ed69b; &#xD;&#xA;        uid=b94e98e7639c53; password=cd2a7b7f" tags="SqlConnectionString">
+    <parameterEntry kind="XmlFile" scope="G:\\Moje\ Pliki\\Programowanie\\CSharp\\School\\Projekt\\MVCDemo\\MVCDemo\\obj\\Debug\\Package\\PackageTmp\\Web\.config$" match="/configuration/connectionStrings/add[@name='DBCS']/@connectionString" />
+  </parameter>
+</parameters>

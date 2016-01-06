@@ -6,8 +6,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace MVCDemo.Models
 {
     [Table("project.tblbooks")]
-    public partial class Book
+    public class Book
     {
+        //public byte[] IdBinary { get; private set; }
+
+        //[NotMapped]
         public Guid Id { get; set; }
 
         [StringLength(100)]
@@ -23,6 +26,9 @@ namespace MVCDemo.Models
         [DisplayName("Opis")]
         public string Description { get; set; }
 
+        //public byte[] AuthorIdBinary { get; private set; }
+
+        //[NotMapped]
         public Guid? AuthorId { get; set; }
 
         [StringLength(257)]

@@ -1,10 +1,4 @@
-﻿@using MVCDemo.Controllers
-@model IEnumerable<MVCDemo.Models.Book>
-
-@*@{
-    var m = Model;
-    @(((BookController)ViewContext.Controller).RenderPartialView("_SearchScrollResults", m));
-}*@
+﻿@model IEnumerable<MVCDemo.Models.Book>
 
 @foreach (var book in Model)
 {
@@ -37,8 +31,3 @@
         @book.Description
     </div>
 }
-
-<div id="divBooksScrollBar">
-    <div id="divBooksScrollUp"></div>
-    <div id="divBooksScrollDown"></div>
-</div>

@@ -6,32 +6,6 @@
 
     $("#txtSearch").autocomplete("disable");
 
-    // Search - Options
-
-    function loadSearchOptions() {
-        var sSearchOptionsView = null;
-
-        $.ajax({
-            async: false,
-            url: siteroot + "/Book/GetSearchOptions",
-            method: "post",
-            contentType: "application/json;charset=utf-8",
-            dataType: "html",
-            success: function (data) {
-                sSearchOptionsView = data;
-            },
-            error: function (err) {
-                $("html").html(err.responseText);
-            }
-        });
-
-        sSearchOptionsView = sSearchOptionsView.replace(/(\r\n|\n|\r|\s\s+)/gm, "");
-        var searchOptionsView = $.parseHTML(sSearchOptionsView);
-        $(searchOptionsView).appendTo($("#divSearchOptions"));
-    }
-
-    loadSearchOptions();
-
     /**
      * Formatuje odstępy divów, w których będą wyniki wyszukiwania
     */
@@ -75,12 +49,13 @@
      * @param {string} message - wiadomość do wyświetlenia
      * @param {boolean} fadeout - Czy wiadomość po wyświetleniu ma zostać po sekundzie wyłączona
      */
-    function showSearchMessage(containerId, contentId, message, fadeout) {
+    function showSearchMessage(containerId, contentId, message, fadeout, duration, delay) {
+        duration = duration !== 0 && !duration ? 1000 : duration;
+        delay = delay !== 0 && !delay ? 1000 : delay;
         $("#" + containerId).stop(true, true).remove();
         $("#" + contentId).stop(true, true).remove();
 
         var $bookFirstContent = $("#divListBooks .book_row").first().children().first(".book_content");
-
         var $divNoSearchResults = $("<div id='" + containerId + "'></div>");
         $divNoSearchResults.appendTo($("#divSearchResults"));
         $divNoSearchResults
@@ -106,24 +81,158 @@
             .stop(true, true)
             .animate({ "opacity": "0.8" }, { queue: true, duration: 1000 });
 
-        if (fadeout) {
-            $divNoSearchResults
-                .delay(1000)
-                .animate({ "opacity": "0" }, { queue: true, duration: 1000, complete: function () { $divNoSearchResults.remove(); } });
-        }
-
-        $("#" + contentId)
+        $divSearchNoResultsContent
             .css({ "opacity": "0" })
             .stop(true, true)
             .animate({ "opacity": "1" }, { queue: true, duration: 1000 });
 
         if (fadeout) {
-            $("#" + contentId)
-                .delay(1000)
-                .animate({ "opacity": "0" }, { queue: true, duration: 1000, complete: function () { $("#divSearchNoMoreResultsContent").remove(); } });
+            hideSearchMessage(containerId, contentId, duration, delay);
         }
+    }
 
-        //return $divNoSearchResults;
+    function hideSearchMessage(containerId, contentId, duration, delay) {
+        duration = duration !== 0 && !duration ? 1000 : duration;
+        delay = delay !== 0 && !delay ? 1000 : delay;
+        var $divNoSearchResults = $("#" + containerId);
+        var $divSearchNoResultsContent = $("#" + contentId);
+
+        $divNoSearchResults
+            .delay(delay)
+            .animate({ "opacity": "0" }, { queue: true, duration: duration, complete: function () { $divNoSearchResults.remove(); } });
+        $divSearchNoResultsContent
+            .delay(delay)
+            .animate({ "opacity": "0" }, { queue: true, duration: duration, complete: function () { $divSearchNoResultsContent.remove(); } });
+    }
+
+    function toggleSearchResultsSpinner(option) {
+        var containerId = "divSearchResultsSpinnerContainer";
+        var contentId = "divSearchResultsSpinnerContent";
+        var spinnerBgImage = "url('Images/Loading/loading3.gif')";
+
+        if (option === "show") {
+            hideSearchMessage("divNoSearchResults", "divSearchNoResultsContent", 0, 0);
+            $("#" + containerId).stop(true, true).remove();
+            $("#" + contentId).stop(true, true).remove();
+
+            var $bookFirstContent = $("#divListBooks .book_row").first().children().first(".book_content");
+            //$bookFirstContent.css({ "background-color": "green"});
+            var $divContainer = $("<div id='" + containerId + "'></div>");
+            $divContainer.appendTo($("#Main"));
+            $divContainer
+                .css({
+                    "opacity": "0",
+                    "position": "absolute",
+                    "background-color": "#202020",
+                    "z-index": "5",
+                    "width": ($bookFirstContent.outerWidth() * 2 + 10) + "px",
+                    "height": $bookFirstContent.outerHeight() / 2
+                })
+                .position({
+                    my: "left top",
+                    at: "left top",
+                    of: $bookFirstContent
+                });
+
+            var $divContent = $("<div id='" + contentId + "'></div>");
+            $divContent.appendTo($("#Main"));
+            $divContent
+                .css({
+                    "opacity": "0",
+                    "position": "absolute",
+                    "width": ($bookFirstContent.outerWidth() * 2 + 10) + "px",
+                    "height": $bookFirstContent.outerHeight() / 2 - 20,
+                    "z-index": "6",
+                    "background-position": "center center",
+                    //"background-color": "blue",
+                    "background-repeat": "no-repeat",
+                    "background-image": spinnerBgImage,
+                    "-ms-background-size": "contain",
+                    "background-size": "contain"
+                })
+                .position({
+                    my: "center center",
+                    at: "center center",
+                    of: $divContainer
+                });
+
+            //alert("divContainer - left: " + $divContainer.css("left") + ", top: " + $divContainer.css("top"));
+
+            $divContainer
+                .stop(true, true)
+                .animate({ "opacity": "0.8" }, { queue: false, duration: 250 });
+
+            $divContent
+                .stop(true, true)
+                .animate({ "opacity": "1" }, { queue: false, duration: 250 });
+        }
+        else if (option === "hide") {
+            $("#" + containerId)
+                .animate({
+                    "opacity": "0"
+                }, {
+                    queue: false,
+                    duration: 250,
+                    complete: function() {
+                        $(this).remove();
+                    }
+                });
+
+            $("#" + contentId)
+                .animate({
+                    "opacity": "0"
+                }, {
+                    queue: false,
+                    duration: 250,
+                    complete: function() {
+                        $(this).remove();
+                    }
+                });
+        }
+        else {
+            alert("toggleSearchResultsSpinner - podana opcja jest nieprawidłowa. ");
+        }
+    }
+
+    function updateResultsCounter(resultsCounter) {
+        $("#Main").children(".div_results_counter").remove();
+        var $bookFirstContent = $("#divListBooks .book_row").first().children().first(".book_content");
+        var $divResultsCounter = $("<div class='div_results_counter'></div>");
+        $divResultsCounter.appendTo($("#Main"));
+        $divResultsCounter
+            .css({
+                "opacity": "1",
+                "position": "absolute",
+                "width": "150px",
+                "height": "60px",
+                "z-index": "3",
+                "background-position": "center center",
+                //"background-color": "blue",
+                "background-repeat": "no-repeat",
+                //"border": "1px solid #FFFFFF",
+                "-ms-background-size": "contain",
+                "background-size": "contain",
+                "-webkit-box-sizing": "border-box",
+                "-moz-box-sizing": "border-box",
+                "box-sizing": "border-box",
+                "line-height": "60px",
+                "text-align": "center",
+                "vertical-align": "middle",
+                "font-size": "24px"
+            })
+            .position({
+                my: "center top",
+                at: "right-" + ($bookFirstContent.outerWidth() + 10 + 10 / 2) + " top",
+                of: $(".books_scrollbar").first()
+            });
+
+        $divResultsCounter.text(resultsCounter);
+
+        $divResultsCounter.clone().appendTo("#Main").position({
+            my: "center top",
+            at: "left+" + ($bookFirstContent.outerWidth() + 10 + 10 / 2) + " top",
+            of: $(".books_scrollbar").last()
+        });;
     }
 
     /**
@@ -171,18 +280,22 @@
         var searchResultContainers = assignSearchDiv("searchresult_container", lowB, highB);
         var searchResultCovers = assignSearchDiv("searchresult_cover", lowB, highB);
         var searchResultAdditionDates = assignSearchDiv("searchresult_item_additiondate", lowB, highB);
+        var searchResultDescriptions = assignSearchDiv("searchresult_item_description", lowB, highB);
 
         return {
             searchResultBackgrounds: searchResultBackgrounds,
             searchResultContentBackgrounds: searchResultContentBackgrounds,
             searchResultContainers: searchResultContainers,
             searchResultAdditionDates: searchResultAdditionDates,
-            searchResultCovers: searchResultCovers
+            searchResultCovers: searchResultCovers,
+            searchResultDescriptions: searchResultDescriptions
         };
     }
 
-    function bindSearchHoverEvents(searchResultCover, searchResultContainer, searchResultContentBackground, searchResultAdditionDate, hoverDiff, duration, initContPosTop, initBgPosTop, initBgHeight, initOpacity) {
+    function bindSearchHoverEvents(searchResultCover, searchResultContainer, searchResultContentBackground, searchResultAdditionDate, searchResultDescription, hoverDiff, duration, initContPosTop, initBgPosTop, initBgHeight, initOpacity, descriptionHeight) {
         $(searchResultCover).off();
+
+        var initCoverHeight = $(searchResultCover).outerHeight();
 
         $(searchResultCover).on("mouseenter", function () {
             var curr = searchResultContainer;
@@ -193,7 +306,10 @@
                 .animate({ 'height': initBgHeight + hoverDiff }, { queue: false, duration: duration })
                 .animate({ 'opacity': "0.8" }, { queue: false, duration: duration });
             $(searchResultAdditionDate).stop().animate({ 'opacity': "0.7" }, { queue: false, duration: duration });
+            $(searchResultDescription).stop().animate({ 'opacity': "1" }, { queue: false, duration: duration }).slideDown({ queue: false, duration: duration });
+            $(searchResultCover).stop().animate({ 'height': initCoverHeight + descriptionHeight }, { queue: false, duration: duration });
         });
+
         $(searchResultCover).on("mouseleave", function () {
             var curr = searchResultContainer;
             $(curr).find(".searchresult_item_showmore").stop().slideUp(duration);
@@ -203,10 +319,13 @@
                 .animate({ 'height': initBgHeight }, { queue: false, duration: duration })
                 .animate({ 'opacity': initOpacity }, { queue: false, duration: duration });
             $(searchResultAdditionDate).stop().animate({ 'opacity': "0" }, { queue: false, duration: duration });
+            $(searchResultDescription).stop().animate({ 'opacity': "0" }, { queue: false, duration: duration }).slideUp({ queue: false, duration: duration });
+            $(searchResultCover).stop().animate({ 'height': initCoverHeight }, { queue: false, duration: duration });
         });
     }
 
-    function formatSingleSearchResult($outerContainer, length, searchResultBackground, searchResultContentBackground, searchResultContainer, searchResultCover, searchResultAdditionDate, bookNum) {
+    // Formatuj pojedyczny wynik wyszukiwania
+    function formatSingleSearchResult($outerContainer, length, searchResultBackground, searchResultContentBackground, searchResultContainer, searchResultCover, searchResultAdditionDate, searchResultDescription, bookNum, bindEvents) {
         if (bookNum < length) {
 
             var margin = 5;
@@ -232,6 +351,9 @@
 
             var hoveredHeight = $(searchResultContainer).outerHeight();
             $(searchResultContainer).find(".searchresult_item_showmore").hide();
+            //$(searchResultDescription).show();
+            
+            //$(searchResultDescription).hide();
             var unhoveredHeight = $(searchResultContainer).outerHeight();
 
             $(searchResultContainer).position({
@@ -282,6 +404,23 @@
                 collision: "none"
             });
 
+            // Description
+
+            $(searchResultDescription).css({
+                "width": $outerContainer.outerWidth() + "px",
+                "opacity": "0"
+            });
+            $(searchResultDescription).position({
+                my: "left top",
+                at: "left bottom",
+                of: $outerContainer,
+                collision: "none"
+            });
+
+            var descriptionHeight = $(searchResultDescription).outerHeight(); // wartość descriptionHeight musi być pobierana w tym miejscu, bo dopiero tutaj div jest widoczny i ma ustawioną ostateczną szerokość
+
+            $(searchResultDescription).hide();
+
             // Events
 
             var hoverDiff = hoveredHeight - unhoveredHeight;
@@ -292,11 +431,35 @@
             var initOpacity = $(searchResultContentBackground).css("opacity");
             //var initBgSize = $(searchResultBackground).css("background-size");
 
-            bindSearchHoverEvents(searchResultCover, searchResultContainer, searchResultContentBackground, searchResultAdditionDate, hoverDiff, duration, initContPosTop, initBgPosTop, initBgHeight, initOpacity);
+            if (bindEvents) {
+                bindSearchHoverEvents(searchResultCover, searchResultContainer, searchResultContentBackground, searchResultAdditionDate, searchResultDescription, hoverDiff, duration, initContPosTop, initBgPosTop, initBgHeight, initOpacity, descriptionHeight);
+            }
         }
     }
 
     function scrollSearchResults(scrollDir) {
+        $(".book_row .book_content").each(function(i, el) {
+            $("<div class='event_blocker'></div>").css({
+                "position": "absolute",
+                "width": $(el).outerWidth() + 20,
+                "height": $(el).outerHeight() + 20,
+                //"background-color": "blue",
+                //"opacity": "0.4",
+                "z-index": "20"
+            }).appendTo($(el)).position({
+                my: "left-10 top-10",
+                at: "left top",
+                of: $(el),
+                collision: "none"
+            });
+        });
+
+        $(".searchresult_cover").eventPause("pause"); // musi być natychmiast po kliknięciu, żeby żaden cymbał nie najechał wyniku myszą w czasie postbacku do serwera
+        disableScrollEvents();
+        disableSearchEvents();
+        toggleSearchResultsSpinner("show");
+        toggleSearchFieldSpinner("show");
+
         var currValues = {
             searchterm: $("#txtSearch").val(),
             includetitle: $("#cbIncludeTitle").prop("checked"),
@@ -334,14 +497,24 @@
                 }),
                 dataType: "json",
                 success: function (data) {
-                    if (data.ResultsCount === 0) {
+                    if (data.ResultsCount <= 0) {
                         refreshTooltip({
                             isValidatedBy: validation,
                             areAnyResults: false
                         });
                         $("#txtSearch").tooltip("open");
 
-                        showSearchMessage("divNoSearchResults", "divSearchNoMoreResultsContent", "Nie ma więcej wyników", true);
+                        if (data.ResultsCount === -1) {
+                            showSearchMessage("divNoSearchResults", "divSearchNoResultsContent", "Baza danych nie odpowiada", false);
+                        } else if (data.ResultsCount === -2) {
+                            showSearchMessage("divNoSearchResults", "divSearchNoResultsContent", "Sesja jest pusta lub nieprawidłowa", false);
+                        } else {
+                            showSearchMessage("divNoSearchResults", "divSearchNoResultsContent", "Nie ma więcej wyników", true);
+                        }
+                        enableSearchEvents();
+                        enableScrollEvents(); // rebind w else jest po animacjach, w funkcji formatScrollResults
+                        $(".searchresult_cover").eventPause("active");
+                        $(".event_blocker").remove();
                     }
                     else {
                         refreshTooltip({
@@ -364,21 +537,27 @@
                             $(searchScrollResultsView).prependTo($("#divSearchResults"));
                         }
                         // ReSharper disable once FunctionsUsedBeforeDeclared
-                        formatScrollResults(scrollDir);
-
+                        formatScrollResults(scrollDir); // nie ma eventPause, rebind eventów dla nowych elementów jest w tej funkcji
+                        updateResultsCounter(data.ResultsCounter);
                         //alert(data.ResultsCount);
                     }
 
-                    toggleSpinner("hide");
+                    toggleSearchResultsSpinner("hide");
+                    toggleSearchFieldSpinner("hide");
                 },
                 error: function (err) {
-                    toggleSpinner("hide");
+                    toggleSearchResultsSpinner("hide");
+                    toggleSearchFieldSpinner("hide");
+                    $(".searchresult_cover").eventPause("active");
+                    $(".event_blocker").remove();
+                    enableSearchEvents();
+                    enableScrollEvents();
                     $("html").html(err.responseText);
                 }
             });
         }
         else {
-            var isHovered = !!$("#txtSearch").filter(function () {
+            var isHovered = !!$("#txtSearch").filter(function () { // sprawdź czy kursor jest nad elementem
                 return $(this).is(":hover");
             }).length;
 
@@ -389,28 +568,127 @@
             if (isHovered) {
                 $("#txtSearch").tooltip("open");
             }
-            toggleSpinner("hide");
+            enableSearchEvents();
+            enableScrollEvents(); // rebind w if jest po animacjach, w funkcji formatScrollResults
+            $(".searchresult_cover").eventPause("active");
+            $(".event_blocker").remove();
+            toggleSearchResultsSpinner("hide");
+            toggleSearchFieldSpinner("hide");
         }
     }
 
-    function rebindEvents() {
-        $("#divBooksScrollBar #divBooksScrollUp, #divBooksScrollBar #divBooksScrollDown").on("mouseenter", function () {
+    function disableSearchEvents() {
+        $("#txtSearch, #btnSearchSubmit, #cbIncludeTitle, #cbIncludeAuthor, #cbIncludeCategory, #cbIncludeDescription").prop("disabled", true);
+        $("#ddlSortBy, #ddlSortOrder").selectmenu("option", "disabled", true);
+        //$("#txtSearch, #btnSearchSubmit, #cbIncludeTitle, #cbIncludeAuthor, #cbIncludeCategory, #cbIncludeDescription").off();
+    }
+
+    function enableSearchEvents() {
+        disableSearchEvents();
+        $("#txtSearch, #btnSearchSubmit, #cbIncludeTitle, #cbIncludeAuthor, #cbIncludeCategory, #cbIncludeDescription").prop("disabled", false);
+        $("#ddlSortBy, #ddlSortOrder").selectmenu("option", "disabled", false);
+    }
+
+    function disableScrollEvents() {
+        $(".div_books_scrollup, .div_books_scrolldown")
+            .off().stop().animate({ "opacity": "0.6" }, 500);
+        $(".div_books_scrollup, .div_books_scrolldown").prop("disable", true);
+    }
+
+    function enableScrollEvents() {
+        disableScrollEvents();
+        $(".div_books_scrollup, .div_books_scrolldown").prop("disable", false);
+
+        $(".div_books_scrollup, .div_books_scrolldown").on("mouseenter", function () {
             $(this).stop().animate({ "opacity": "1" }, 500);
         });
 
-        $("#divBooksScrollBar #divBooksScrollUp, #divBooksScrollBar #divBooksScrollDown").on("mouseleave", function () {
+        $(".div_books_scrollup, .div_books_scrolldown").on("mouseleave", function () {
             $(this).stop().animate({ "opacity": "0.6" }, 500);
         });
 
-        $("#divBooksScrollBar #divBooksScrollUp").on("click", function () {
+        $(".div_books_scrollup").on("click", function () {
             scrollSearchResults("scrollup");
         });
 
-        $("#divBooksScrollBar #divBooksScrollDown").on("click", function () {
+        $(".div_books_scrolldown").on("click", function () {
             scrollSearchResults("scrolldown");
         });
     }
 
+    // Formatuj wyniki po wyszukiwaniu
+    function formatSearchResults() {
+        var $bookRow = $("#divListBooks .book_row");
+        var bookNum = 0;
+        var divs = getSearchDivs();
+        var length = divs.searchResultContainers.length;
+
+        var arrScrollBars = [];
+
+        $(".books_scrollbar").empty().each(function (i, el) {
+            arrScrollBars.push(el);
+        });
+
+        $bookRow.each(function (i, el) {
+            var $leftBookContent = $(el).children().first(".book_content");
+            var $rightBookContent = $(el).children().last(".book_content");
+
+            formatSingleSearchResult($leftBookContent, length, divs.searchResultBackgrounds[bookNum], divs.searchResultContentBackgrounds[bookNum], divs.searchResultContainers[bookNum], divs.searchResultCovers[bookNum], divs.searchResultAdditionDates[bookNum], divs.searchResultDescriptions[bookNum], bookNum++, true);
+            formatSingleSearchResult($rightBookContent, length, divs.searchResultBackgrounds[bookNum], divs.searchResultContentBackgrounds[bookNum], divs.searchResultContainers[bookNum], divs.searchResultCovers[bookNum], divs.searchResultAdditionDates[bookNum], divs.searchResultDescriptions[bookNum], bookNum++, true);
+
+            switch (i) {
+                case 0:
+                {
+                    $("<div id=\"divBooksScrollUpTop\" class=\"div_books_scrollup\"></div>").appendTo($(arrScrollBars[0])).css({
+                        /*"border": "1px solid red", */"box-sizing": "border-box", /*"position": "absolute",*/ "z-index": "3"//,
+                    }).position({
+                        my: "center bottom",
+                        at: "left+" + (($(arrScrollBars[0]).outerWidth() - $leftBookContent.outerWidth() * 2 - 10 * 3) + 10 + $leftBookContent.outerWidth() / 2) + " bottom",
+                        of: $(arrScrollBars[0])
+                    });
+
+                    $("<div id=\"divBooksScrollDownTop\" class=\"div_books_scrolldown\"></div>").appendTo($(arrScrollBars[0])).css({
+                        /*"border": "1px solid green", */"box-sizing": "border-box", /*"position": "absolute",*/ "z-index": "3"//,
+                    }).position({
+                        my: "center bottom",
+                        at: "left+" + (($(arrScrollBars[0]).outerWidth() - $leftBookContent.outerWidth() * 2 - 10 * 3) + 10 * 2 + $rightBookContent.outerWidth() + $leftBookContent.outerWidth() / 2) + " bottom",
+                        of: $(arrScrollBars[0])
+                    });
+                    break;
+                }
+                case 5: { // numery w casie oznaczają cały wiersz, więc szukamy wiersza 6 - 1
+                    $("<div id=\"divBooksScrollUpBottom\" class=\"div_books_scrollup\"></div>").appendTo($(arrScrollBars[1])).css({
+                        /*"border": "1px solid yellow", */"box-sizing": "border-box", /*"position": "absolute",*/ "z-index": "3"//,
+                    }).position({
+                        my: "center top",
+                        at: "left+" + (10 + $leftBookContent.outerWidth() / 2) + " top",
+                        of: $(arrScrollBars[1])
+                    });
+
+                    $("<div id=\"divBooksScrollDownBottom\" class=\"div_books_scrolldown\"></div>").appendTo($(arrScrollBars[1])).css({
+                        /*"border": "1px solid blue", */"box-sizing": "border-box", /*"position": "absolute",*/ "z-index": "3"//,
+                    }).position({
+                        my: "center top",
+                        at: "left+" + (10 * 2 + $rightBookContent.outerWidth() + $leftBookContent.outerWidth() / 2) + " top",
+                        of: $(arrScrollBars[1])
+                    });
+                    enableScrollEvents();
+                    break;
+                }
+                default: {
+                    break;
+                }
+            }
+        });
+
+        // Ustaw z-indeksy elementów
+
+        $.each(divs.searchResultCovers, function (i, el) {
+            $(el).css({ "z-index": 16 - i }); // chcę żeby ostatni div miał z-index = 5, a skoro iteracja jest od 0, to trzeba zacząć od 16, a nie 17
+        });
+    }
+
+    // Formatuj wyniki po przewijaniu
     function formatScrollResults(scrollDir) {
         var $bookRow = $("#divListBooks .book_row");
         var $bookContents = [];
@@ -427,6 +705,7 @@
             highBoundary: highB
         });
         var length = divs.searchResultContainers.length;
+        var initCoverHeight = $bookContents[0].outerHeight();
 
         if (scrollDir.toLowerCase() === "scrolldown") {
             bookNum = 10;
@@ -436,10 +715,10 @@
         }
         initBookNum = bookNum;
 
-        formatSingleSearchResult($bookRow.last().children().first(".book_content"), length, divs.searchResultBackgrounds[bookNum], divs.searchResultContentBackgrounds[bookNum], divs.searchResultContainers[bookNum], divs.searchResultCovers[bookNum], divs.searchResultAdditionDates[bookNum], bookNum++); // musi być inkrementacja, bo kolejne wywołanie bierze zaaktualizowaną wartość dla wszystkich argumentów, nie tylko dla bookNum
-        formatSingleSearchResult($bookRow.last().children().last(".book_content"), length, divs.searchResultBackgrounds[bookNum], divs.searchResultContentBackgrounds[bookNum], divs.searchResultContainers[bookNum], divs.searchResultCovers[bookNum], divs.searchResultAdditionDates[bookNum], bookNum++);
+        formatSingleSearchResult($bookRow.last().children().first(".book_content"), length, divs.searchResultBackgrounds[bookNum], divs.searchResultContentBackgrounds[bookNum], divs.searchResultContainers[bookNum], divs.searchResultCovers[bookNum], divs.searchResultAdditionDates[bookNum], divs.searchResultDescriptions[bookNum], bookNum++, false); // musi być inkrementacja, bo kolejne wywołanie bierze zaaktualizowaną wartość dla wszystkich argumentów, nie tylko dla bookNum
+        formatSingleSearchResult($bookRow.last().children().last(".book_content"), length, divs.searchResultBackgrounds[bookNum], divs.searchResultContentBackgrounds[bookNum], divs.searchResultContainers[bookNum], divs.searchResultCovers[bookNum], divs.searchResultAdditionDates[bookNum], divs.searchResultDescriptions[bookNum], bookNum++, false);
 
-        $("#divBooksScrollBar #divBooksScrollUp, #divBooksScrollBar #divBooksScrollDown").off().stop().animate({ "opacity": "0.6" }, 500);
+        // odbindowanie eventów wywołane przed metodą ajaxa
 
         bookNum = initBookNum; // resetuj wartość bookNum
 
@@ -459,8 +738,10 @@
                 }
             }
         });
-        var initPriceOpacity = $(divs.searchResultAdditionDates[0]).css("opacity");
-        $(".searchresult_cover").off();
+        var initDateOpacity = $(divs.searchResultAdditionDates[0]).css("opacity");
+        var initDescriptionOpacity = $(divs.searchResultDescriptions[0]).css("opacity");
+
+        $(".searchresult_cover").eventPause("active").off(); // wyłączyć pauzę jeśli wiadomo, że eventy będa usuwane
 
         // Fade Out 2 niepotrzebne wyniki
 
@@ -482,7 +763,7 @@
 
         $.each(divs, function (i, el) { // el - typ divu, bookNum - numer divu
             for (var j = 0; j < $bookContents.length; j++) {
-                if (i !== bookNum && i !== bookNum + 1) {
+                if (i !== bookNum && i !== bookNum + 1) { // nie dotyczy nowych dwóch wyników
 
                     // Background
 
@@ -492,12 +773,11 @@
                             at: "left top",
                             of: $bookContents[j],
                             collision: "none",
-                            using: function (pos) {
+                            using: function(pos) {
                                 $(this).stop(true, true).animate(pos, { duration: duration });
                             }
                         });
                     }
-
                     // Content
 
                     else if ($(el[j]).hasClass("searchresult_container")) {
@@ -506,12 +786,11 @@
                             at: "left+5 bottom-5",
                             of: $bookContents[j],
                             collision: "none",
-                            using: function (pos) {
+                            using: function(pos) {
                                 $(this).stop(true, true).animate(pos, { duration: duration });
                             }
                         });
                     }
-
                     // Content Background
 
                     else if ($(el[j]).hasClass("searchresult_content_background")) {
@@ -520,12 +799,11 @@
                             at: "left bottom",
                             of: $bookContents[j],
                             collision: "none",
-                            using: function (pos) {
+                            using: function(pos) {
                                 $(this).stop(true, true).animate(pos, { duration: duration });
                             }
                         });
                     }
-
                     // Content - Addition Date (not part of container)
 
                     else if ($(el[j]).hasClass("searchresult_item_additiondate")) {
@@ -534,17 +812,34 @@
                             at: "right top",
                             of: $bookContents[j],
                             collision: "none",
-                            using: function (pos) {
+                            using: function(pos) {
                                 $(this).stop(true, true).animate(pos, {
                                     duration: duration,
-                                    complete: function () {
-                                        $(this).css({ "opacity": initPriceOpacity });
+                                    complete: function() {
+                                        $(this).css({ "opacity": initDateOpacity });
                                     }
                                 });
                             }
                         });
                     }
+                    // Description (not part of container)
 
+                    else if ($(el[j]).hasClass("searchresult_item_description")) {
+                        $(el[j]).css({ "opacity": "0" }).show().position({
+                            my: "left top",
+                            at: "left bottom",
+                            of: $bookContents[j],
+                            collision: "none",
+                            using: function(pos) {
+                                $(this).stop(true, true).animate(pos, {
+                                    duration: duration,
+                                    complete: function() {
+                                        $(this).css({ "opacity": initDescriptionOpacity }).hide();
+                                    }
+                                });
+                            }
+                        });
+                    }
                     // Cover
 
                     else if ($(el[j]).hasClass("searchresult_cover")) {
@@ -554,32 +849,44 @@
                             of: $bookContents[j],
                             collision: "none",
                             using: function (pos) {
-                                $(this).stop(true, true).animate(pos, duration,
+                                $(this).stop(true, true).css({ "height": initCoverHeight }).animate(pos, duration,
                                 (function (j) {
                                     return function () {
-                                        $(divs.searchResultContainers[j]).find(".searchresult_item_showmore").show();
-                                        var hoveredHeight = $(divs.searchResultContainers[j]).outerHeight();
-                                        $(divs.searchResultContainers[j]).find(".searchresult_item_showmore").hide();
-                                        var unhoveredHeight = $(divs.searchResultContainers[j]).outerHeight();
+                                        var tempJ = j;
+                                        $(divs.searchResultContainers[tempJ]).find(".searchresult_item_showmore").show();
+                                        var hoveredHeight = $(divs.searchResultContainers[tempJ]).outerHeight();
+                                        $(divs.searchResultContainers[tempJ]).find(".searchresult_item_showmore").hide();
+                                        var unhoveredHeight = $(divs.searchResultContainers[tempJ]).outerHeight();
+
+                                        $(divs.searchResultDescriptions[tempJ]).show();
+                                        var descriptionHeight = $(divs.searchResultDescriptions[tempJ]).outerHeight(); // div jest sformatowany włącznie z szerokościa, przy wyszukiwaniu, przy scrollowaniu operuje na gotowych elementach, dlatego descripyioon height ma właściwą wartość
+                                        $(divs.searchResultDescriptions[tempJ]).hide();
 
                                         var hoverDiff = hoveredHeight - unhoveredHeight;
                                         var dur = 250;
-                                        var initContPosTop = $(divs.searchResultContainers[j]).position().top;
-                                        var initBgPosTop = $(divs.searchResultContentBackgrounds[j]).position().top;
-                                        var initBgHeight = $(divs.searchResultContentBackgrounds[j]).outerHeight();
-                                        var initOpacity = 0.7; // $(divs.searchResultContentBackgrounds[j]).css("opacity"); // Nie mogę wziąć z divu, bo dwa pierwsze albo dwa ostatnie będą ukryte
-                                        //var initBgSize = $(divs.searchResultBackgrounds[j]).css("background-size");
+                                        var initContPosTop = $(divs.searchResultContainers[tempJ]).position().top;
+                                        var initBgPosTop = $(divs.searchResultContentBackgrounds[tempJ]).position().top;
+                                        var initBgHeight = $(divs.searchResultContentBackgrounds[tempJ]).outerHeight();
+                                        var initOpacity = 0.7; // $(divs.searchResultContentBackgrounds[tempJ]).css("opacity"); // Nie mogę wziąć z divu, bo dwa pierwsze albo dwa ostatnie będą ukryte
+                                        //var initBgSize = $(divs.searchResultBackgrounds[tempJ]).css("background-size");
 
-                                        bindSearchHoverEvents(divs.searchResultCovers[j], divs.searchResultContainers[j], divs.searchResultContentBackgrounds[j], divs.searchResultAdditionDates[j], hoverDiff, dur, initContPosTop, initBgPosTop, initBgHeight, initOpacity);
+                                        //alert($.eventReport(divs.searchResultCovers[tempJ]));
+                                        $(divs.searchResultCovers[tempJ]).eventPause("pause");
+                                        bindSearchHoverEvents(divs.searchResultCovers[tempJ], divs.searchResultContainers[tempJ], divs.searchResultContentBackgrounds[tempJ], divs.searchResultAdditionDates[tempJ], divs.searchResultDescriptions[tempJ], hoverDiff, dur, initContPosTop, initBgPosTop, initBgHeight, initOpacity, descriptionHeight);
                                     } // ReSharper disable once ClosureOnModifiedVariable
                                 })(j));
                             }
                         });
-
                     }
                 }
             }
 
+        });
+
+        // Ustaw z-indeksy elementów
+
+        $.each(divs.searchResultCovers, function (i, el) {
+            $(el).css({ "z-index": 16 - i }); // chcę żeby ostatni div miał z-index = 5, a skoro iteracja jest od 0, to trzeba zacząć od 16, a nie 17
         });
 
         // Fade In nowe Wyniki
@@ -592,51 +899,34 @@
             $(divs.searchResultContentBackgrounds[bookNum + 1]).stop(true, true).animate({ "opacity": transparentOpacity }, { duration: fadeInDuration });
             $(divs.searchResultContainers[bookNum + 1]).stop(true, true).animate({ "opacity": "1" }, { duration: fadeInDuration });
             $(divs.searchResultAdditionDates[bookNum + 1]).stop(true, true).animate({ "opacity": "0" }, { duration: fadeInDuration });
-            $(divs.searchResultCovers[bookNum + 1]).stop(true, true).animate({ "opacity": "1" }, { duration: fadeInDuration });
+            $(divs.searchResultDescriptions[bookNum + 1]).slideUp(0).stop(true, true).animate({ "opacity": "1" }, { duration: fadeInDuration });
+            $(divs.searchResultCovers[bookNum + 1]).stop(true, true).animate({ "opacity": "0.2" }, { duration: fadeInDuration });
         }
 
         $(divs.searchResultBackgrounds[bookNum]).stop(true, true).animate({ "opacity": "1" }, { duration: fadeInDuration });
         $(divs.searchResultContentBackgrounds[bookNum]).stop(true, true).animate({ "opacity": transparentOpacity }, { duration: fadeInDuration });
         $(divs.searchResultContainers[bookNum]).stop(true, true).animate({ "opacity": "1" }, { duration: fadeInDuration });
         $(divs.searchResultAdditionDates[bookNum]).stop(true, true).animate({ "opacity": "0" }, { duration: fadeInDuration });
-        $(divs.searchResultCovers[bookNum]).stop(true, true).animate({ "opacity": "1" }, {
+        $(divs.searchResultDescriptions[bookNum]).hide().stop(true, true).animate({ "opacity": "1" }, { duration: fadeInDuration });
+        $(divs.searchResultCovers[bookNum]).stop(true, true).animate({ "opacity": "0.2" }, {
             duration: fadeInDuration, queue: true, complete: function () {
                 $(".searchdiv_to_delete").remove();
 
-                rebindEvents();
+                enableSearchEvents();
+                enableScrollEvents();
+                $(".searchresult_cover").eventPause("active");
+                $(".event_blocker").remove();
             }
         });
 
     }
 
-    function formatSearchResults() {
-        var $bookRow = $("#divListBooks .book_row");
-        var bookNum = 0;
-        var divs = getSearchDivs();
-        var length = divs.searchResultContainers.length;
+    function searchBooks() {
+        // pokaż spinnery
+        disableScrollEvents();
+        toggleSearchResultsSpinner("show");
+        toggleSearchFieldSpinner("show");
 
-        $bookRow.each(function (i, el) {
-            formatSingleSearchResult($(el).children().first(".book_content"), length, divs.searchResultBackgrounds[bookNum], divs.searchResultContentBackgrounds[bookNum], divs.searchResultContainers[bookNum], divs.searchResultCovers[bookNum], divs.searchResultAdditionDates[bookNum], bookNum);
-            bookNum++;
-            formatSingleSearchResult($(el).children().last(".book_content"), length, divs.searchResultBackgrounds[bookNum], divs.searchResultContentBackgrounds[bookNum], divs.searchResultContainers[bookNum], divs.searchResultCovers[bookNum], divs.searchResultAdditionDates[bookNum], bookNum);
-            bookNum++;
-
-            if (i === 0) {
-                $("#divBooksScrollBar").position({
-                    my: "right-10 top",
-                    at: "left top",
-                    of: $(el).children().first(".book_content"),
-                    collision: "none"
-                });
-
-                $("#divBooksScrollBar #divBooksScrollUp, #divBooksScrollBar #divBooksScrollDown").off();
-
-                rebindEvents();
-            }
-        });
-    }
-
-    function searchMenu() {
         var currValues = {
             searchterm: $("#txtSearch").val(),
             includetitle: $("#cbIncludeTitle").prop("checked"),
@@ -712,7 +1002,7 @@
                 }),
                 dataType: "json",
                 success: function (data) { 
-                    if (data.ResultsCount === 0) {
+                    if (data.ResultsCount <= 0) {
                         refreshTooltip({
                             isValidatedBy: validation,
                             areAnyResults: false
@@ -722,7 +1012,13 @@
                         //var $bookFirstContent = $("#divListBooks .book_row").first().children().first(".book_content");
 
                         $("#divSearchResults").empty();
-                        showSearchMessage("divNoSearchResults", "divSearchNoResultsContent", "Brak Rezultatów Wyszukiwania", false);
+                        if (data.ResultsCount === -1) {
+                            showSearchMessage("divNoSearchResults", "divSearchNoResultsContent", "Baza danych nie odpowiada", false);
+                        } else {
+                            showSearchMessage("divNoSearchResults", "divSearchNoResultsContent", "Brak Rezultatów Wyszukiwania", false);
+                        }
+                        enableScrollEvents(); // rebind w else jest w funkcji formatSearchResults
+                        $("#Main").children(".div_results_counter").remove(); // usuń licznik wyników
                     }
                     else {
                         refreshTooltip({
@@ -737,12 +1033,16 @@
                         $("#divSearchResults").empty();
                         $(searchResultsView).appendTo($("#divSearchResults"));
                         formatSearchResults();
+                        updateResultsCounter(data.ResultsCounter);
                     }
 
-                    toggleSpinner("hide");
+                    toggleSearchResultsSpinner("hide");
+                    toggleSearchFieldSpinner("hide");
                 },
                 error: function (err) {
-                    toggleSpinner("hide");
+                    toggleSearchResultsSpinner("hide");
+                    toggleSearchFieldSpinner("hide");
+                    enableScrollEvents(); // rebind w else jest w funkcji formatSearchResults
                     $("html").html(err.responseText);
                 }
             });
@@ -759,43 +1059,27 @@
             if (isHovered) {
                 $("#txtSearch").tooltip("open");
             }
-            toggleSpinner("hide");
+            toggleSearchResultsSpinner("hide");
+            toggleSearchFieldSpinner("hide");
+            enableScrollEvents(); // rebind w if jest w funkcji formaySearchResults
         }
     }
-
-    searchMenu();
-
-    $("#btnSearchSubmit").click(function () { // submit wywoływany po evencie submit preventDefault z Base/Index
-        searchMenu();
-    });
 
     $("#txtSearch").on("keyup change", function () {
         // po odświeżeniu tooltipa (z Base)
 
-        searchMenu();
+        searchBooks();
     });
 
-    $("#cbIncludeTitle").click(function () {
-        searchMenu();
-    });
-
-    $("#cbIncludeAuthor").click(function () {
-        searchMenu();
-    });
-
-    $("#cbIncludeCategory").click(function () {
-        searchMenu();
-    });
-
-    $("#cbIncludeDescription").click(function () {
-        searchMenu();
+    $("#btnSearchSubmit, #cbIncludeTitle, #cbIncludeAuthor, #cbIncludeCategory, #cbIncludeDescription").click(function () { // submit wywoływany po evencie submit (gdzie zatrzymuje go preventDefault) z Base/Index
+        searchBooks();
     });
 
     $("#ddlSortBy").selectmenu({
         width: 200,
         icons: { button: "custom-icon-down-arrow" },
         select: function () { // event, ui
-            searchMenu();
+            searchBooks();
         }
     });
 
@@ -803,12 +1087,18 @@
         width: 200,
         icons: { button: "custom-icon-down-arrow" }, //ui-icon-arrow-1-s
         select: function () { // event, ui
-            searchMenu();
+            searchBooks();
         }
     });
 
+    searchBooks(); // musi być po nałożeniu selectmenu na dropdownlisty, bo zmieniają one wysokość, przesuwając całą stronę w dół i pozycja spinnera była by brana według położeń z przed nałożenia menu
+
     // Formatowanie
 
-    resizeBackground();
+    resizeBackground(); // na każdej stronie na końcu
+
+    //$.getScript("Scripts/jquery.mobile-1.4.5.js", function () {
+    //    alert("Script loaded but not necessarily executed.");
+    //});
 
 });

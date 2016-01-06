@@ -6,6 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewBag.Title</title>
+
     <link href="~/Content/themes/base/all.css" rel="stylesheet" />
     <link href="~/Content/Styles.css" rel="stylesheet" />
     <meta name="description" content="The description of my page" />
@@ -20,28 +21,27 @@
 
     <div id="Background"></div>
     <div id="Main" class="container body-content">
+        @{
+            var controller = ViewContext.RouteData.GetRequiredString("controller");
+            var action = ViewContext.RouteData.GetRequiredString("action");
+        }
+
+        @Html.Partial("_ViewSwitcher")
         @using (@Html.BeginForm("Index", "Book", FormMethod.Post, new { id = "frmSearch" }))
         {
-            <div>
-                @{
-                    var controller = ViewContext.RouteData.GetRequiredString("controller");
-                    var action = ViewContext.RouteData.GetRequiredString("action");
-                    Html.RenderAction("GetSearchWidget", "Base", new { controller, action });
-                }
+            <div id="divMenuContainer">
+                <div id="divSearchWidget">
+                    @{ Html.RenderAction("GetSearchWidget", "Base", new { controller, action }); }
+                    <input id="btnSearchSubmit" type="submit" value="Szukaj" />
+                </div>
 
-                <input id="btnSearchSubmit" type="submit" value="Szukaj" />
-            </div>
-
-            <div id="divSearchOptions">
-
+                <div id="divSearchOptions">
+                    @{ Html.RenderAction("GetSearchOptions", "Book", new { controller, action }); }
+                </div>
             </div>
         }
 
-        <div id="divSearchResults">
-
-        </div>
-
-        <br />
+        <br/>
 
         @RenderBody()
 
@@ -53,6 +53,7 @@
     <script src="~/Scripts/jquery.validate.unobtrusive.js"></script>
     <script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
     <script src="~/Scripts/jquery.cookie.js"></script>
+    <script src="~/Scripts/eventPause.js"></script>
     <script src="~/Scripts/jhash-2.1.js"></script>
     <script src="~/Scripts/attrchange.js"></script>
     <script src="~/Scripts/moment.js"></script>

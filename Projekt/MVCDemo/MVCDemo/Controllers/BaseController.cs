@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Linq.Dynamic;
 using System.Web.Mvc;
@@ -9,6 +11,11 @@ using System.Text;
 using System.IO;
 using Newtonsoft.Json;
 using System.Data.Entity;
+using System.Data.Entity.Core.Objects;
+using System.Data.Entity.Infrastructure;
+using System.Linq.Expressions;
+using System.Threading;
+using MySql.Data.MySqlClient;
 
 namespace MVCDemo.Controllers
 {
@@ -19,11 +26,14 @@ namespace MVCDemo.Controllers
             if (!ModelState.IsValid)
                 throw new Exception("Model dla 'search' jest nieprawidłowy");
 
-            var books = GetBooks(search);
+            bool error;
+            string resultsCounter;
+            var books = GetBooks(search, out resultsCounter, out error);
 
             var dateFormatSettings = new JsonSerializerSettings
             {
-                DateFormatHandling = DateFormatHandling.IsoDateFormat
+                DateFormatHandling = DateFormatHandling.IsoDateFormat,
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
             };
 
             return JsonConvert.SerializeObject(books, dateFormatSettings);
@@ -45,63 +55,225 @@ namespace MVCDemo.Controllers
             return PartialView("_SearchWidget", search);
         }
 
-        protected List<Book> GetBooks(Search search)
+        protected List<Book> GetBooks(Search search, out string resultsCounter, out bool error)
+        {
+            error = false;
+            resultsCounter = "n/a";
+            var books = Enumerable.Empty<Book>().ToList();
+
+            using (var db = new ProjectDbContext())
+            {
+                db.Database.Initialize(force: false); // MODEL MUSI BYĆ ZBUDOWANY ZANIM OTWORZYMY POŁĄCZENIE, INACZEJ BĘDZIE BŁĄD, CANNOT USE CONTEXT DURING MODEL CREATING
+
+                var paramSearchTerms = new MySqlParameter { ParameterName = "p_SearchTerms", Value = search.SearchTerm };
+                var paramIncludeTitle = new MySqlParameter { ParameterName = "p_IncludeTitle", Value = search.IncludeTitle };
+                var paramIncludeAuthor = new MySqlParameter { ParameterName = "p_IncludeAuthor", Value = search.IncludeAuthor };
+                var paramIncludeCategory = new MySqlParameter { ParameterName = "p_IncludeCategory", Value = search.IncludeCategory };
+                var paramIncludeDescription = new MySqlParameter { ParameterName = "p_IncludeDescription", Value = search.IncludeDescription };
+                var paramHowMuchSkip = new MySqlParameter { ParameterName = "p_HowMuchSkip", Value = search.HowMuchSkip };
+                var paramHowMuchTake = new MySqlParameter { ParameterName = "p_HowMuchTake", Value = search.HowMuchTake };
+                var paramSortBy = new MySqlParameter { ParameterName = "p_SortBy", Value = search.SortBy };
+                var paramSortOrder = new MySqlParameter { ParameterName = "p_SortOrder", Value = search.SortOrder };
+
+                var cmd = db.Database.Connection.CreateCommand();
+                cmd.CommandText = "sp_SearchBooks";
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.Add(paramSearchTerms);
+                cmd.Parameters.Add(paramIncludeTitle);
+                cmd.Parameters.Add(paramIncludeAuthor);
+                cmd.Parameters.Add(paramIncludeCategory);
+                cmd.Parameters.Add(paramIncludeDescription);
+                cmd.Parameters.Add(paramHowMuchSkip);
+                cmd.Parameters.Add(paramHowMuchTake);
+                cmd.Parameters.Add(paramSortBy);
+                cmd.Parameters.Add(paramSortOrder);
+
+                try
+                {
+                    if (search.HowMuchSkip >= 0)
+                    {
+                        db.Database.Connection.Open();
+                        var reader = cmd.ExecuteReader();
+
+                        resultsCounter = ((IObjectContextAdapter)db)
+                            .ObjectContext
+                            .Translate<string>(reader).SingleOrDefault();
+
+                        reader.NextResult();
+                        books = ((IObjectContextAdapter)db)
+                            .ObjectContext
+                            .Translate<Book>(reader).ToList(); //.AsQueryable().Include(b => b.Author)
+                        reader.Close();
+
+                        var loadedUsers = new List<User>();
+                        foreach (var b in books)
+                        {
+                            var loadedCurrAuthor = loadedUsers.SingleOrDefault(u => b.AuthorId == u.Id);
+
+                            if (loadedCurrAuthor == null)
+                                loadedUsers.Add(db.Users.Single(u => b.AuthorId == u.Id));
+
+                            b.Author = loadedUsers.Single(u => b.AuthorId == u.Id);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    error = true;
+                    return books; // fallback, zwróć pusty zestaw
+                }
+                finally
+                {
+                    if (db.Database.Connection.State == ConnectionState.Open)
+                        db.Database.Connection.Close();
+                }
+
+                return books;
+            }
+        }
+
+        protected List<Book> GetBooksAlternate(Search search) // NIEUŻYWANE
         {
             var db = new ProjectDbContext();
-            var books = db.Books; 
-            
+            var books = db.Books;
+
             var listTerms = search.SearchTerm.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries)
-                .Where(s => s.Length >= 3).ToList();
+                .Where(s => s.Length >= 3).ToList().ConvertAll(t => t.ToLower().Replace("|", ""));
 
-            var searchedBooks = books.AsEnumerable()
-                .Where(book => CheckWhatToSearch(book, search, listTerms));
+            var searchedBooks = books
+                .Where(delegate (Book book)
+                {
+                    if (book.IsPublic != true)
+                        return false;
 
-            var sortedBooks = search.SortOrder.ToLower() == "asc" ? 
-                searchedBooks.OrderBy(search.SortBy) : 
-                searchedBooks.OrderBy(search.SortBy).Reverse();
+                    if (listTerms.Count <= 0)
+                        return true;
+
+                    var sbWhereToSearch = new StringBuilder();
+                    var titleValue = book.Title;
+                    var authorValue = db.Users.Single(u => u.Id == book.AuthorId).UserName;
+                    var categoryValue = book.Category;
+                    var descriptionValue = book.Description;
+
+                    if (search.IncludeTitle)
+                        sbWhereToSearch.Append(titleValue + " ");
+
+                    if (search.IncludeAuthor)
+                        sbWhereToSearch.Append(authorValue + " ");
+
+                    if (search.IncludeCategory)
+                        sbWhereToSearch.Append(categoryValue + " ");
+
+                    if (search.IncludeDescription)
+                        sbWhereToSearch.Append(descriptionValue + " ");
+
+                    if (sbWhereToSearch.Length == 0) // jeśli nic nie zostało wybrane
+                        sbWhereToSearch.Append(titleValue + " ");
+
+                    return listTerms.All(sbWhereToSearch.ToString().ToLower().Contains); // true jeśli zawiera wszystkie elementy z wpisanych przez usera
+                });
+
+            var sortedBooks = searchedBooks.OrderBy(search.SortBy + " " + search.SortOrder.ToLower()); // dynamic LINQ query helper
 
             var pagedBooks = search.HowMuchSkip >= 0 ?
                 sortedBooks.Skip(search.HowMuchSkip).Take(search.HowMuchTake) :
-                new List<Book>();
+                Enumerable.Empty<Book>().AsQueryable();
 
             return pagedBooks.ToList();
         }
 
-        private static bool CheckWhatToSearch(Book book, Search search, List<string> listTerms)
+        protected List<Book> GetBooksDynamicLinqExpressions(Search search) // NIEUŻYWANE
         {
             var db = new ProjectDbContext();
-            var users = db.Users.ToList();
+            var books = db.Books;//.Include(b => b.Author);
 
-            if (book.IsPublic == false || book.IsPublic == null)
-                return false;
+            var listTerms = search.SearchTerm.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries)
+                .Where(s => s.Length >= 3).ToList().ConvertAll(t => t.ToLower().Replace("|", ""));
 
-            if (listTerms.Count <= 0)
-                return true;
+            var searchedBooks = books;
+            //.AsQueryable().Where(delegate (Book book)
+            //{
+            //    if (book.IsPublic != true)
+            //        return false;
 
-            listTerms = listTerms.ConvertAll(t => t.ToLower());
+            //    if (listTerms.Count <= 0)
+            //        return true;
 
-            var sbWhereToSearch = new StringBuilder();
-            var titleValue = book.Title.ToLower();
-            var authorValue = users.Single(u => u.Id == book.AuthorId).UserName;
-            var categoryValue = book.Category.ToLower();
-            var descriptionValue = book.Description.ToLower();
+            //    var sbWhereToSearch = new StringBuilder();
+            //    var titleValue = book.Title;
+            //    var authorValue = db.Users.Single(u => u.Id == book.AuthorId).UserName;
+            //    var categoryValue = book.Category;
+            //    var descriptionValue = book.Description;
 
-            if (search.IncludeTitle)
-                sbWhereToSearch.Append(titleValue + " ");
+            //    if (search.IncludeTitle)
+            //        sbWhereToSearch.Append(titleValue + " ");
 
-            if (search.IncludeAuthor)
-                sbWhereToSearch.Append(authorValue + " ");
+            //    if (search.IncludeAuthor)
+            //        sbWhereToSearch.Append(authorValue + " ");
 
-            if (search.IncludeCategory)
-                sbWhereToSearch.Append(categoryValue + " ");
+            //    if (search.IncludeCategory)
+            //        sbWhereToSearch.Append(categoryValue + " ");
 
-            if (search.IncludeDescription)
-                sbWhereToSearch.Append(descriptionValue + " ");
+            //    if (search.IncludeDescription)
+            //        sbWhereToSearch.Append(descriptionValue + " ");
 
-            if (sbWhereToSearch.Length == 0) // jeśli nic nie zostało wybrane
-                sbWhereToSearch.Append(titleValue + " ");
+            //    if (sbWhereToSearch.Length == 0) // jeśli nic nie zostało wybrane
+            //        sbWhereToSearch.Append(titleValue + " ");
 
-            return listTerms.All(sbWhereToSearch.ToString().Contains); // true jeśli zawiera wszystkie elementy z wpisanych przez usera
+            //    return listTerms.All(s => sbWhereToSearch.ToString().ToLower().Contains(s));
+            //});
+
+            //// Drzewo wyrażenia reprezentujące parametr predykatu
+            //ParameterExpression pe = Expression.Parameter(typeof(Book), "book");
+            //LabelTarget returnTarget = Expression.Label(typeof(bool));
+
+            //// if (book.IsPublic != true)
+            ////     return false;
+            //Expression ifBookNotPublic = Expression.IfThen(
+            //    Expression.NotEqual(
+            //        Expression.Property(pe, typeof(Book).GetProperty("IsPublic")), 
+            //        Expression.Constant(true)), 
+            //    Expression.Return(returnTarget, Expression.Constant(false)));
+
+            //// if (listTerms.Count <= 0)
+            ////     return true;
+            //Expression paramListTerms = Expression.Constant(listTerms);
+            //Expression ifListTermsCountLessOrEqualThanZero = Expression.IfThen(
+            //    Expression.LessThanOrEqual(
+            //        Expression.Property(paramListTerms, typeof(List<string>).GetProperty("Count")),
+            //        Expression.Constant(0, typeof(int))), 
+            //    Expression.Return(returnTarget, Expression.Constant(true)));
+
+            //// listTerms.All(s => sbWhereToSearch.ToString().ToLower().Contains(s));
+            //ParameterExpression pTerm = Expression.Parameter(typeof(string), "s");
+            //Expression paramSearch = Expression.Constant(search);
+
+            //// if (search.IncludeTitle)
+            ////     sbWhereToSearch.Append(titleValue + " ");
+            //Expression ifSearchIncludeTitleThenConcat = Expression.IfThen(
+            //    Expression.Equal(
+            //        Expression.Property(paramSearch, typeof(Search).GetProperty("IncludeTitle")),
+            //        Expression.Constant(true)),
+            //    Expression. WHAT NOW? );
+
+
+            //// ===================================
+            //var exprBlock = Expression.Block(); // Expression Calls here
+            //var searchedBooks = books.AsQueryable().Where(Expression.Lambda<Func<Book, bool>>(exprBlock, pe)); // książki, takie dla których cały blok zwraca true
+
+            var sortedBooks = searchedBooks.OrderBy(search.SortBy + " " + search.SortOrder.ToLower()); // dynamic LINQ query helper
+
+            var pagedBooks = search.HowMuchSkip >= 0 ?
+                sortedBooks.Skip(search.HowMuchSkip).Take(search.HowMuchTake) :
+                Enumerable.Empty<Book>().AsQueryable();
+
+            //var sql = ((ObjectQuery)pagedBooks).ToTraceString();
+            //var linq = pagedBooks.ToString();
+
+            // całe procedurą z LIMIT search.HowMuchSkip OFFSET search.HowMuchTake
+            // E:\Program Files\XAMPP\mysql\data\Szymon.log
+
+            return pagedBooks.ToList(); // Error: LINQ to Entities does not recognize the method 'Boolean CheckWhatToSearch(MVCDemo.Models.Book, MVCDemo.Models.Search, System.Collections.Generic.List`1[System.String])' method, and this method cannot be translated into a store expression.
         }
 
         public PartialViewResult GetAutocompleteItem(string item) // wywoływany w JS, otrzymuje po kolei itemy pobrane z bazy danych
