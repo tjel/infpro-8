@@ -1,5 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.1\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.1\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" />
+  <Import Project="..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props" Condition="Exists('..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -22,6 +24,8 @@
     <MvcBuildViews>true</MvcBuildViews>
     <UseGlobalApplicationHostFile />
     <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -46,12 +50,32 @@
       <HintPath>..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="AutoMapper, Version=4.2.0.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\packages\AutoMapper.4.2.0\lib\net45\AutoMapper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="AutoMapper.EF6, Version=0.3.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\AutoMapper.EF6.0.3.0\lib\net45\AutoMapper.EF6.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="DelegateDecompiler, Version=1.0.0.0, Culture=neutral, PublicKeyToken=93b26a10a04705bd, processorArchitecture=MSIL">
+      <HintPath>..\packages\DelegateDecompiler.0.17.0\lib\net40-Client\DelegateDecompiler.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="DelegateDecompiler.EntityFramework, Version=1.0.0.0, Culture=neutral, PublicKeyToken=93b26a10a04705bd, processorArchitecture=MSIL">
+      <HintPath>..\packages\DelegateDecompiler.EntityFramework.0.17.0\lib\net45\DelegateDecompiler.EntityFramework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.1\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
@@ -61,6 +85,10 @@
     </Reference>
     <Reference Include="Microsoft.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebHelpers.3.2.3\lib\net45\Microsoft.Web.Helpers.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Mono.Reflection, Version=1.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\Mono.Reflection.1.0.0.0\lib\Mono.Reflection.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="MySql.Data, Version=6.9.8.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
@@ -419,6 +447,7 @@
     <Content Include="Data\Books\231f4f0c-80be-11e5-87be-d43d7ef137da\Cover.jpg" />
     <Content Include="Data\Books\261f79ef-8317-11e5-91da-d43d7ef137da\Cover.jpg" />
     <Content Include="Data\Books\2feb687b-a591-11e5-be13-00ff23f4a6cf\Cover.jpg" />
+    <Content Include="Data\Books\3b5771e2-d32a-11e5-b200-00ff23f4a6cf\Cover.jpg" />
     <Content Include="Data\Books\569a000d-a590-11e5-be13-00ff23f4a6cf\Cover.jpg" />
     <Content Include="Data\Books\5a914551-a592-11e5-be13-00ff23f4a6cf\Cover.jpg" />
     <Content Include="Data\Books\ae28a1ba-a590-11e5-be13-00ff23f4a6cf\Cover.jpg" />
@@ -441,7 +470,12 @@
     <Content Include="CodeTemplates\MvcView\Details.cs.t4" />
     <Content Include="CodeTemplates\MvcView\Delete.cs.t4" />
     <Content Include="CodeTemplates\MvcView\Create.cs.t4" />
+    <Content Include="Images\Correct.png" />
+    <Content Include="Images\Incorrect.png" />
+    <Content Include="Images\Loading\loading4.gif" />
     <Content Include="Images\Loading\loading3.gif" />
+    <Content Include="Images\menu_background.jpg" />
+    <Content Include="Images\menu_item_active.jpg" />
     <Content Include="Images\scroll_down_arrow.png" />
     <Content Include="Images\scroll_up_arrow.png" />
     <Content Include="Images\check_radio_sheet.png" />
@@ -460,10 +494,16 @@
     <Content Include="Content\bootstrap-theme.css.map" />
     <None Include="Properties\PublishProfiles\interaktywneksiazki - Web Deploy.pubxml" />
     <None Include="Scripts\jquery-2.1.4.intellisense.js" />
+    <Content Include="Images\site_background_book.jpg" />
+    <Content Include="Images\site_background_book_on_beach.png" />
     <Content Include="Images\up_arrow.png" />
+    <Content Include="MenuItems.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Scripts\additional-methods.js" />
     <Content Include="Scripts\additional-methods.min.js" />
     <Content Include="Scripts\attrchange.js" />
+    <Content Include="Scripts\Base\After.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\eventPause.js" />
@@ -477,6 +517,9 @@
     <Content Include="Scripts\jquery-ui-1.11.4.min.js" />
     <Content Include="Scripts\jquery.cookie-1.4.1.min.js" />
     <Content Include="Scripts\jquery.cookie.js" />
+    <None Include="Scripts\jquery.linq-vsdoc.js" />
+    <Content Include="Scripts\jquery.linq.js" />
+    <Content Include="Scripts\jquery.linq.min.js" />
     <Content Include="Scripts\jquery.mobile-1.4.5.js" />
     <Content Include="Scripts\jquery.mobile-1.4.5.min.js" />
     <Content Include="Scripts\jquery.mobile.noinit.noselects-1.4.5.js" />
@@ -492,11 +535,23 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.bootstrap.min.js.map" />
     <Content Include="Scripts\jquery.mobile-1.4.5.min.map" />
     <None Include="Scripts\_references.js" />
-    <Content Include="Scripts\Base\Index.js" />
+    <Content Include="Scripts\Base\Global.js" />
+    <None Include="Scripts\linq-vsdoc.js" />
+    <Content Include="Scripts\linq.jquery.js" />
+    <Content Include="Scripts\linq.js" />
+    <Content Include="Scripts\linq.min.js" />
+    <Content Include="Scripts\linq.rx.js" />
+    <Content Include="Scripts\MicrosoftAjax.debug.js" />
+    <Content Include="Scripts\MicrosoftAjax.js" />
+    <Content Include="Scripts\MicrosoftMvcAjax.debug.js" />
+    <Content Include="Scripts\MicrosoftMvcAjax.js" />
+    <Content Include="Scripts\MicrosoftMvcValidation.debug.js" />
+    <Content Include="Scripts\MicrosoftMvcValidation.js" />
     <Content Include="Scripts\moment-with-locales.js" />
     <Content Include="Scripts\moment-with-locales.min.js" />
     <Content Include="Scripts\moment.js" />
     <Content Include="Scripts\moment.min.js" />
+    <Content Include="Scripts\User\Register.js" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -510,18 +565,32 @@
     <Compile Include="Common\MatchPatternAttribute.cs" />
     <Compile Include="Common\MatchPropertiesAttribute.cs" />
     <Compile Include="Common\MinFirstStringLength.cs" />
+    <Compile Include="Common\NotEqualToAttribute.cs" />
+    <Compile Include="Common\RemoteClientServerAttribute.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\BookController.cs" />
+    <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Controllers\ViewSwitcherController.cs" />
     <Compile Include="CustomHtmlHelpers\CustomHtmlHelpers.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\ActivationRequest.cs" />
+    <Compile Include="Models\AutoMapperConfiguration.cs" />
     <Compile Include="Models\Book.cs" />
+    <Compile Include="Models\Encryption.cs" />
+    <Compile Include="Models\MenuItem.cs" />
     <Compile Include="Models\ProjectDbContext.cs" />
+    <Compile Include="Models\RemindPasswordRequest.cs" />
     <Compile Include="Models\Search.cs" />
     <Compile Include="Models\User.cs" />
+    <Compile Include="Models\UserToSendActivationCodeViewModel.cs" />
+    <Compile Include="Models\UserToActivateViewModel.cs" />
+    <Compile Include="Models\UserToLoginViewModel.cs" />
+    <Compile Include="Models\UserToRegisterViewModel.cs" />
+    <Compile Include="Models\UserToRemindPasswordViewModel.cs" />
+    <Compile Include="Models\UserToSendRemindPasswordRequestViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
@@ -541,6 +610,13 @@
     <Content Include="Views\Shared\_Layout.Mobile.cshtml" />
     <Content Include="Views\Home\Index.Mobile.cshtml" />
     <Content Include="Views\Book\Index.Mobile.cshtml" />
+    <Content Include="Views\Shared\_Menu.cshtml" />
+    <Content Include="Views\Shared\_LoginPanelLogged.cshtml" />
+    <Content Include="Views\Shared\_LoginPanel.cshtml" />
+    <Content Include="Views\User\Register.cshtml" />
+    <Content Include="Views\User\_RegisterPanel.cshtml" />
+    <Content Include="Views\User\_ActivateAccountPanel.cshtml" />
+    <Content Include="Views\User\_RemindPasswordPanel.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -597,5 +673,12 @@
     <Delete Files="@(ExtraWebConfigs)" />
     <RemoveDir Directories="@(ExtraPackageTmp)" />
     <AspNetCompiler VirtualPath="temp" PhysicalPath="$(WebProjectOutputDir)" />
+  </Target>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>Ten projekt zawiera odwołania do pakietów NuGet, których nie ma na tym komputerze. Użyj przywracania pakietów NuGet, aby je pobrać. Aby uzyskać więcej informacji, zobacz http://go.microsoft.com/fwlink/?LinkID=322105. Brakujący plik: {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.1\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.1\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
   </Target>
 </Project>

@@ -64,7 +64,7 @@ namespace MVCDemo.Models
 
         [RegularExpression(@"^[a-zA-Z ĄąĆćĘęŁłŃńÓóŚśŹźŻż:]*$")]
         [MinFirstStringLength(3, ' ', ErrorMessage = "Wyszukiwane frazy muszą mieć co najmniej 3 znaki. ")]
-        [DisplayName("Przeszukaj Menu: ")]
+        [DisplayName("Szukaj Książek: ")]
         public string SearchTerm
         {
             get
@@ -139,7 +139,7 @@ namespace MVCDemo.Models
                         new SelectListItem
                         {
                             Value = p.Name.ToLower(),
-                            Text = (new DisplayNameHelper()).GetDisplayName(p),
+                            Text = DisplayNameHelper.GetDisplayName(p),
                             Selected = p.Name.ToLower() == _sortBy
                         }));
 

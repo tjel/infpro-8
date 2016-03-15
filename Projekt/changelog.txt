@@ -1,3 +1,16 @@
+v0.06 (NIEWYDANE)
+
+- W Base/Index (JQuery) dodana funkcja checkVisible(elm, evalType) - http://stackoverflow.com/questions/5353934/check-if-element-is-visible-on-screen
+- Dodane overflow: hidden w liczniku wyszukanych ksi¹¿ek gdyby nietypowa czcionka przekroczy³a div (¿eby formatowanie nie zosta³o rozbite)
+- Dodane Menu korzystaj¹ce z pliku XML
+- zmienna siteroot jest teraz niezale¿na od serwera
+
+FIXY:
+- pozycjonowanie t³a - position() zast¹pione metod¹ offset(), poniewaz pozycja potrzebuje aby element by³ widoczny na ekranie - http://stackoverflow.com/questions/8027875/jquery-how-to-find-the-elements-x-center-coordinates-and-related-window-offset
+- Informacja o tym, ¿e nie ma wiêcej wyników nie bedzie wyœwietla³a siê poni¿ej swojej pozycji, je¿eli okno by³o przewiniête w dó³ (position() zast¹pione offset())
+- searchbooks() dla jednego wyszukiwania nie bedzie wykonywany wielokrotnie (usuniêcie eventu change, pozostawienie, keyup), przez co informacja o wynikach wyszukwiania nie bedzie usuwana przy pierwszym wyszukiwaniu dla nowych wyników
+- sortowanie ksi¹¿ek po autorze nie bêdzie zwracaæ b³êdu bazy danych
+
 v0.05
 
 - Strona udostêpniona na platformie AZURE - http://interaktywneksiazki.azurewebsites.net/Book

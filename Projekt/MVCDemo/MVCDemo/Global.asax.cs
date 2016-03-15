@@ -11,6 +11,7 @@ using System.Web.Http;
 using System.Threading;
 using System.Globalization;
 using System.Web.Optimization;
+using AutoMapper;
 using MVCDemo.Models;
 
 namespace MVCDemo
@@ -30,6 +31,8 @@ namespace MVCDemo
             RouteConfig.RegisterRoutes(RouteTable.Routes);
 
             BundleMobileConfig.RegisterBundles(BundleTable.Bundles);
+
+            AutoMapperConfiguration.Configure();
         }
 
         void Session_Start(object sender, EventArgs e)

@@ -14,14 +14,13 @@ namespace MVCDemo.Common
 {
     public class DisplayNameHelper
     {
-        public string GetDisplayName(object obj, string propertyName)
+        public static string GetDisplayName(object obj, string propertyName)
         {
             if (obj == null) return null;
             return GetDisplayName(obj.GetType(), propertyName);
-
         }
 
-        public string GetDisplayName(Type type, string propertyName)
+        public static string GetDisplayName(Type type, string propertyName)
         {
             var property = type.GetProperty(propertyName);
             if (property == null) return null;
@@ -29,7 +28,7 @@ namespace MVCDemo.Common
             return GetDisplayName(property);
         }
 
-        public string GetDisplayName(PropertyInfo property)
+        public static string GetDisplayName(PropertyInfo property)
         {
             var attrName = GetAttributeDisplayName(property);
             if (!string.IsNullOrEmpty(attrName))
@@ -51,7 +50,7 @@ namespace MVCDemo.Common
             return displayNameAttribute?.DisplayName;
         }
 
-        private string GetMetaDisplayName(PropertyInfo property)
+        private static string GetMetaDisplayName(PropertyInfo property)
         {
             if (property.DeclaringType == null)
                 return null;

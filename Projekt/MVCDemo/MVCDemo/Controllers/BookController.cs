@@ -14,7 +14,7 @@ namespace MVCDemo.Controllers
                 throw new Exception("Model dla 'search' jest nieprawidłowy");
 
             var requestType = System.Web.HttpContext.Current.Request.HttpMethod;
-            var searchOptions = new Search { HowMuchTake = 12 };
+            var searchOptions = new Search {HowMuchTake = 12};
 
             var dictDefaultSearchOptions = searchOptions.ToDictionary();
             var dictSessionSearchOptions = GetSearchParamsSession();
@@ -38,12 +38,13 @@ namespace MVCDemo.Controllers
 
         public ActionResult Details(Book book)
         {
-            return View(); // nie bedzie trafiać bo GUIDy generowane przez MySQL są inne, działać będzie dopiero jeśli dodamy bezpośrednio z poziomu aplikacji
+            return View();
+                // nie bedzie trafiać bo GUIDy generowane przez MySQL są inne, działać będzie dopiero jeśli dodamy bezpośrednio z poziomu aplikacji
         }
 
         public PartialViewResult GetSearchOptions(string controller, string action)
         {
-            var search = new Search { HowMuchTake = 12 };
+            var search = new Search {HowMuchTake = 12};
 
             var dictSearchParams = GetSearchParamsSession();
             if (dictSearchParams != null && dictSearchParams.Count > 0)
@@ -88,10 +89,11 @@ namespace MVCDemo.Controllers
         public JsonResult GetScrollSearchResults(Search search, string scrollDirection)
         {
             if (!ModelState.IsValid || !new[] {"scrollup", "scrolldown"}.Contains(scrollDirection.ToLower()))
-                throw new Exception("Model dla 'search' lub Kierunek sortowania przekazany przez Ajax jest nieprawidłowy");
+                throw new Exception(
+                    "Model dla 'search' lub Kierunek sortowania przekazany przez Ajax jest nieprawidłowy");
 
-            var sessSearch = new Search((Dictionary<string, object>)Session["SearchParams"]);
-            var expectedSearch = new Search(search) { HowMuchSkip = sessSearch.HowMuchSkip };
+            var sessSearch = new Search((Dictionary<string, object>) Session["SearchParams"]);
+            var expectedSearch = new Search(search) {HowMuchSkip = sessSearch.HowMuchSkip};
 
             if (Session["SearchParams"] == null || !sessSearch.Equals(expectedSearch))
             {
@@ -102,7 +104,7 @@ namespace MVCDemo.Controllers
                     PartialView = string.Empty
                 }, JsonRequestBehavior.AllowGet);
             }
-           
+
             var totalSkip = search.HowMuchSkip + sessSearch.HowMuchSkip;
             search.HowMuchSkip = totalSkip;
             var searchWithoutInvertedValues = new Search(search);
@@ -137,15 +139,22 @@ namespace MVCDemo.Controllers
             SaveSearchParamsSession(searchWithoutInvertedValues.ToDictionary());
 
             // parsować do liczb if scrolldown dodac z dolu scrollup z gory
-            resultsCounter = resultsCounter.Trim().Replace(" ", string.Empty); // obsługuję resultsCounter tylko jeżeli są wyniki
+            resultsCounter = resultsCounter.Trim().Replace(" ", string.Empty);
+                // obsługuję resultsCounter tylko jeżeli są wyniki
             var parsedFrom = Convert.ToInt32(resultsCounter.Substring(0, resultsCounter.IndexOf('-')));
             if (scrollDirection.ToLower() == "scrolldown")
                 parsedFrom -= 10;
-            var parsedTo = Convert.ToInt32(resultsCounter.Substring(resultsCounter.LastIndexOf('-') + 1, resultsCounter.IndexOf('z') - resultsCounter.LastIndexOf('-') - 1));
+            var parsedTo =
+                Convert.ToInt32(resultsCounter.Substring(resultsCounter.LastIndexOf('-') + 1,
+                    resultsCounter.IndexOf('z') - resultsCounter.LastIndexOf('-') - 1));
             if (scrollDirection.ToLower() == "scrollup")
                 parsedTo += 10;
-            var parsedTotal = Convert.ToInt32(resultsCounter.Substring(resultsCounter.LastIndexOf('z') + 1, resultsCounter.LastIndexOf('(') - resultsCounter.LastIndexOf('z') - 1));
-            var parsedCount = Convert.ToInt32(resultsCounter.Substring(resultsCounter.LastIndexOf('(') + 1, resultsCounter.LastIndexOf(')') - resultsCounter.LastIndexOf('(') - 1)) + 10;
+            var parsedTotal =
+                Convert.ToInt32(resultsCounter.Substring(resultsCounter.LastIndexOf('z') + 1,
+                    resultsCounter.LastIndexOf('(') - resultsCounter.LastIndexOf('z') - 1));
+            var parsedCount =
+                Convert.ToInt32(resultsCounter.Substring(resultsCounter.LastIndexOf('(') + 1,
+                    resultsCounter.LastIndexOf(')') - resultsCounter.LastIndexOf('(') - 1)) + 10;
             //if (parsedCount < parsedTo - parsedFrom) // obsłużone w bazie danych
             //    parsedTo = parsedFrom + parsedCount;
 

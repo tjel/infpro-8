@@ -21,6 +21,9 @@ CREATE TABLE tblUsers
   CONSTRAINT ck_users_id CHECK (Id REGEXP '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}')
 );
 
+ALTER TABLE tblUsers 
+  ADD IsActivated INT AFTER LockedDateTime;
+
 CREATE TABLE tblBooks 
 (
   Id CHAR(36),
@@ -89,6 +92,8 @@ BEGIN
     VALUES ("b351f7a2-a594-11e5-be13-00ff23f4a6cf", "WiedŸmin: Pani Jeziora", "Fantastyka", "Pi¹ta czêœæ sagi o Geralcie z Rivii.", "748cea8f-80be-11e5-87be-d43d7ef137da", "~/Data/Books/b351f7a2-a594-11e5-be13-00ff23f4a6cf/Cover.jpg", "2015-12-18 22:54:47", 1);
   INSERT INTO tblBooks (tblBooks.Id, tblBooks.Title, tblBooks.Category, tblBooks.Description, tblBooks.AuthorId, tblBooks.Thumbnail, tblBooks.AdditionDate, tblBooks.IsPublic)
     VALUES ("f3451066-a594-11e5-be13-00ff23f4a6cf", "WiedŸmin: Sezon Burz", "Fantastyka", "Geralt stacza walkê z niebezpiecznym potworem, którego jedynym celem w ¿yciu jest zabijanie ludzi. Krótko po tym zostaje aresztowany, co skutkuje utrat¹ jego dwóch bezcennych, kutych na miarê mieczy wiedŸmiñskich. Z ma³¹ pomoc¹ swojego przyjaciela, Jaskra i jego koneksji, robi wszystko, by odzyskaæ swoje narzêdzia pracy. W miêdzyczasie wdaje siê w romans z czarodziejk¹ Lytt¹ Neyd (o pseudonimie Koral), poznaje wp³ywowe persony oraz margines spo³eczny zwi¹zany z pañstwem, w którym utraci³ swoje miecze - Kerack. Te wydarzenia oraz nieukrywana i odwzajemniona niechêæ magów do Geralta (którzy okazuj¹ siê byæ powi¹zani z t¹ histori¹) sprawiaj¹, ¿e ca³oœæ uk³ada siê w pasmo niepowodzeñ, podczas których bohater zmuszony jest do podejmowania trudnych decyzji i naginania jedynego zbioru zasad, którymi powinien kierowaæ siê \"wzorowy\" wiedŸmin - Kodeksu.", "748cea8f-80be-11e5-87be-d43d7ef137da", "~/Data/Books/f3451066-a594-11e5-be13-00ff23f4a6cf/Cover.jpg", "2015-12-18 22:54:47", 1);
+  INSERT INTO tblBooks (tblBooks.Id, tblBooks.Title, tblBooks.Category, tblBooks.Description, tblBooks.AuthorId, tblBooks.Thumbnail, tblBooks.AdditionDate, tblBooks.IsPublic)
+    VALUES ("3b5771e2-d32a-11e5-b200-00ff23f4a6cf", "World of Warcraft: Kr¹g Nienawiœci", "Fantastyka", "P³on¹cy Legion zosta³ pokonany i wschodnie rejony Kalimdoru zamieszkuj¹ dwa narody orki z Durotaru pod wodz¹ szlachetnego Thralla i ludzie z Theramore, którymi rz¹dzi jeden z najpotê¿niejszych ¿yj¹cych magów, lady Jaina Proudmoore. ", "748cea8f-80be-11e5-87be-d43d7ef137da", "~/Data/Books/3b5771e2-d32a-11e5-b200-00ff23f4a6cf/Cover.jpg", "2016-02-14 15:57:47", 1);
 END;
 
 TRUNCATE TABLE tblBooks;
@@ -111,7 +116,7 @@ ALTER TABLE tblBooks CHANGE ThumbnailPath Thumbnail VARCHAR(257);
 
 SET GLOBAL log_bin_trust_function_creators = 1;
 
-GRANT ALL PRIVILEGES ON *.* TO b94e98e7639c53@'eu-cdbr-azure-north-d.cloudapp.net' IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON *.* TO b94e98e7639c53@'eu-cdbr-azure-north-d.cloudapp.net' IDENTIFIED BY 'cd2a7b7f';
 
 -- Procedura do wyszukiwania ksi¹¿ek
 
@@ -132,6 +137,7 @@ BEGIN
   DECLARE v_currTerm VARCHAR(100) DEFAULT "";
   DECLARE v_totalResults INT DEFAULT 0;
   DECLARE v_resultsCount INT DEFAULT 0;
+  DECLARE v_sortBy VARCHAR(100);
 
   DROP TEMPORARY TABLE IF EXISTS temp_tblSearchMatches;
 	CREATE TEMPORARY TABLE temp_tblSearchMatches
@@ -155,6 +161,12 @@ BEGIN
   END WHILE;
   COMMIT;
   
+  IF (LOWER(p_SortBy) = 'author') THEN
+    SET v_SortBy = 'authorid';
+  ELSE 
+    SET v_SortBy = p_sortBy;
+  END IF;
+
   DROP TEMPORARY TABLE IF EXISTS temp_tblSearchResults;
   SET @v_statement = CONCAT(
     'CREATE TEMPORARY TABLE temp_tblSearchResults AS ', 
@@ -164,18 +176,22 @@ BEGIN
             'FROM temp_tblSearchMatches sm ', 
             'GROUP BY sm.Id ', 
             'HAVING COUNT(sm.SearchTerm) = ', i, ' - 1) ',  
-        'ORDER BY ', p_SortBy, ' ', p_SortOrder, ' ',
-        'LIMIT ', p_HowMuchTake, ' OFFSET ', p_HowMuchSkip, ';');
-
+        'ORDER BY ', v_SortBy, ' ', p_SortOrder, ' ', ';');
+        -- 'LIMIT ', p_HowMuchTake, ' OFFSET ', p_HowMuchSkip, 
+        
   PREPARE stmt FROM @v_statement;
   EXECUTE stmt;
   DEALLOCATE PREPARE stmt;
 
-  SELECT COUNT(b.Id) INTO v_totalResults 
-    FROM tblBooks b;
+  SELECT COUNT(Id) INTO v_totalResults 
+    FROM temp_tblSearchResults;
 
   SELECT COUNT(Id) INTO v_resultsCount
-    FROM temp_tblSearchResults;
+    FROM 
+    (
+      SELECT Id FROM temp_tblSearchResults
+      LIMIT p_HowMuchTake OFFSET p_HowMuchSkip
+    ) sr;
 
   SELECT CONCAT(
     p_HowMuchSkip, " - ", 
@@ -188,11 +204,34 @@ BEGIN
     v_resultsCount, ")"
   ) AS ResultsCounter;
 
-  SELECT * FROM temp_tblSearchResults;
+  SELECT * 
+    FROM temp_tblSearchResults 
+    LIMIT p_HowMuchTake OFFSET p_HowMuchSkip;
 
   DROP TEMPORARY TABLE IF EXISTS temp_tblSearchMatches;
   DROP TEMPORARY TABLE IF EXISTS temp_tblSearchResults;
 END;
+
+
+CREATE TABLE tblActivationRequests
+(
+	Id CHAR(36) PRIMARY KEY,
+	UserId CHAR(36),
+	ActivationRequestDateTime DATETIME,
+
+  FOREIGN KEY (UserId) REFERENCES tblUsers(Id)
+);
+
+CREATE TABLE tblRemindPasswordRequests
+(
+	Id CHAR(36) PRIMARY KEY,
+	UserId CHAR(36),
+	RemindPasswordRequestDateTime DATETIME,
+
+  FOREIGN KEY (UserId) REFERENCES tblUsers(Id)
+);
+
+-- ================================================================================================
 
 CALL sp_SearchBooks("", 1, 0, 0, 1, 4, 12, 'title', 'asc');
 
@@ -200,5 +239,34 @@ CALL sp_SearchBooks("", 1, 0, 0, 1, 4, 12, 'title', 'asc', @p_ResultsCounter);
 SELECT @p_ResultsCounter;
 
 SELECT SUBSTRING_INDEX(SUBSTRING_INDEX("wyraz1 wyraz2 wyraz3 end;", ' ', 3), ' ', -1) AS v;
+
+DELETE FROM tblActivationRequests;
+DELETE FROM tblUsers WHERE LOWER(tblUsers.UserName) != 'rvnlord';
+
+SELECT * FROM tblActivationRequests ar;
+SELECT * FROM tblremindpasswordrequests rp;
+SELECT * FROM tblUsers;
+SELECT * FROM tblBooks;
+
+UPDATE tblUsers u SET u.IsActivated = 1;
+
+UPDATE tblUsers u 
+  SET u.Password = "O5g9a46GBK4pa1XIj9HI2u16Lr9pM7kbvs14O/76Jnpceb/EUUF0ln31rpXwUr3OEOaMa42XsAqyEoCKkS3eTfTkQBo=" 
+  WHERE u.UserName = "rvnlord";
+
+UPDATE tblUsers u 
+  SET u.IsLocked = 0, u.RetryAttempts = 0, u.LockedDateTime = NULL
+  WHERE u.UserName = "rvnlord";
+
+UPDATE tblUsers u
+  SET u.LockedDateTime = "2016-02-22 01:29:33"
+  WHERE u.UserName = "rvnlord";
+
+INSERT INTO tblactivationrequests (tblActivationRequests.Id, tblActivationRequests.UserId, tblActivationRequests.ActivationRequestDateTime)
+  VALUES ("9d892b2b-9e15-4f0e-97a5-af4343d8b596", "016bcf98-e9cc-4a30-a538-b2e9ac371d9a", "2016-02-22 01:29:33");
+INSERT INTO tblactivationrequests (tblActivationRequests.Id, tblActivationRequests.UserId, tblActivationRequests.ActivationRequestDateTime)
+  VALUES ("9d892b2b-9e15-4f0e-97a5-af4343d8b596", "016bcf98-e9cc-4a30-a538-b2e9ac371d9a", CURDATE());
+
+
 
 

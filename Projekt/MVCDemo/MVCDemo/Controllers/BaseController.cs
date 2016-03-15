@@ -14,7 +14,11 @@ using System.Data.Entity;
 using System.Data.Entity.Core.Objects;
 using System.Data.Entity.Infrastructure;
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 using System.Threading;
+using System.Web;
+using System.Xml.Linq;
+using AutoMapper;
 using MySql.Data.MySqlClient;
 
 namespace MVCDemo.Controllers
@@ -281,7 +285,7 @@ namespace MVCDemo.Controllers
             var js = new JavaScriptSerializer();
             var dictItem = (Dictionary<string, object>)js.DeserializeObject(item);
             var db = new ProjectDbContext();
-            var users = db.Users.ToList();
+            //var users = db.Users.ToList();
             var authorGuid = new Guid(dictItem["AuthorId"].ToString());
 
             var book = new Book
@@ -295,7 +299,7 @@ namespace MVCDemo.Controllers
                 Thumbnail = dictItem["Thumbnail"].ToString(),
                 IsPublic = Convert.ToBoolean(dictItem["IsPublic"]),
                 // Navigation Properties - (added with include)
-                Author = users.Single(u => u.Id == authorGuid)
+                Author = db.Users.Single(u => u.Id == authorGuid)
             };
 
             return PartialView("_AutocompleteItem", book);
@@ -361,6 +365,211 @@ namespace MVCDemo.Controllers
                 viewResult.View.Render(viewContext, sw);
                 return sw.GetStringBuilder().ToString();
             }
+        }
+
+        // Menu Strony
+
+        public PartialViewResult GetMenu(string controller, string action)
+        {
+            if (Session["MenuPartialView"] != null)
+            {
+                dynamic sessData = Session["MenuPartialView"];
+                if (sessData.Controller == controller && sessData.Action == action)
+                    return PartialView("_Menu", (List<MenuItem>)sessData.MenuItems);
+            }
+
+            var menuItems = new List<MenuItem>();
+            var xmlUrl = Server.MapPath("~/MenuItems.xml");
+
+            if (System.IO.File.Exists(xmlUrl) && new FileInfo(xmlUrl).Length > 0)
+            {
+                var actionController = controller + "/" + action;
+                var url = Url.Content("~/");
+                
+                var doc = XDocument.Load(Server.MapPath("~/MenuItems.xml"));
+                var root = doc.Element("MenuItems");
+                var descendants = (root?.Descendants() ?? Enumerable.Empty<XElement>()).ToList();
+                
+                if (root != null && descendants.Count > 0)
+                {
+                    foreach (var node in descendants)
+                    {
+                        var id = Convert.ToInt32(node.Attribute("Id").Value);
+                        if (menuItems.Select(item => item.Id).Any(x => x == id))
+                            continue;
+
+                        var nodNavUrl = node.Attribute("NavigateUrl").Value;
+                        while (url.EndsWith("/"))
+                            url = url.Substring(0, url.Length - 1);
+                        while (nodNavUrl.StartsWith("/") || nodNavUrl.StartsWith("~"))
+                            nodNavUrl = nodNavUrl.Substring(1);
+                            
+                        menuItems.Add(new MenuItem
+                        {
+                            Id = id,
+                            Text = node.Attribute("Text").Value,
+                            NavigateUrl = Url.Content("~/" + nodNavUrl),
+                            Checked = nodNavUrl.Equals(actionController),
+                            AncestorId =
+                                node.Parent != null && node.Parent.Name == "MenuItem"
+                                    ? (int?)Convert.ToInt32(node.Parent.Attribute("Id").Value)
+                                    : null,
+                            Level = node.Ancestors().Count() // ilość przodków w pionie
+                        });
+                    }
+
+                    var minLvl = menuItems.Select(item => item.Level).Min();
+                    foreach (var item in menuItems)
+                        item.Level -= minLvl;
+                }
+            }
+
+            Session["MenuPartialView"] = new { Controller = controller, Action = action, MenuItems = menuItems };
+            return PartialView("_Menu", menuItems);
+        }
+
+        // Panel Logowania
+
+        public PartialViewResult GetLoginPanel(string controller, string action)
+        {
+            // Jeśli Użytkownik jest zalogowany i dane są poprawne
+            var userCookie = Request.Cookies["LoggedUser"];
+            var userSession = (UserToLoginViewModel)Session["LoggedUser"];
+            if (userCookie != null)
+            {
+                var userToLogin = JsonConvert.DeserializeObject<UserToLoginViewModel>(userCookie.Value);
+                var user = new User();
+                AutoMapperConfiguration.Mapper.Map(userToLogin, user);
+                if (user.Authenticate(true) == UserActionResult.Success) // (przy użyciu Hasha z cookie, a nie czystego hasła)
+                    return PartialView("_LoginPanelLogged", userToLogin);
+            }
+            else if (userSession != null)
+            {
+                var userToLogin = userSession;
+                var user = new User();
+                AutoMapperConfiguration.Mapper.Map(userToLogin, user);
+                if (user.Authenticate(true) == UserActionResult.Success) 
+                    return PartialView("_LoginPanelLogged", userToLogin);
+            }
+            
+            return PartialView("_LoginPanel", new UserToLoginViewModel());
+        }
+
+        public string LoginUser([Bind(Include = "UserName,Password,RememberMe")] UserToLoginViewModel userToLogin)
+        {
+            if (!Request.IsAjaxRequest())
+                throw new Exception("Zapytanie nie zostało wywołane jako zapytanie AJAX");
+            //Thread.Sleep(5000);
+
+            var user = new User();
+            AutoMapperConfiguration.Mapper.Map(userToLogin, user);
+
+            var isAuthenticated = user.Authenticate();
+            userToLogin.Id = user.Id;
+            userToLogin.UserName = user.UserName;
+            userToLogin.Password = user.Password;
+            userToLogin.RememberMe = user.RememberMe;
+
+            switch (isAuthenticated)
+            {
+                case UserActionResult.Success:
+                {
+                    userToLogin.Id = user.Id;
+
+                    // Zapisz w Sesji
+                    Session["LoggedUser"] = userToLogin;
+                    
+                    // Zapisz w Cookies
+                    if (user.RememberMe)
+                    {
+                        Response.SetCookie(new HttpCookie("LoggedUser")
+                        {
+                            Value = JsonConvert.SerializeObject(userToLogin),
+                            Expires = DateTime.Now.AddDays(30)
+                        });
+                    }
+
+                    return JsonConvert.SerializeObject(new
+                    {
+                        LoginMessage = "",
+                        PartialView = RenderPartialView("_LoginPanelLogged", userToLogin)
+                    });
+                }
+                case UserActionResult.Failure:
+                {
+                    return JsonConvert.SerializeObject(new
+                    {
+                        LoginMessage = $"Niepoprawne Dane. Prób: {4 - user.RetryAttempts}",
+                        PartialView = RenderPartialView("_LoginPanel", userToLogin)
+                    });
+                }
+                case UserActionResult.UserDoesNotExist:
+                {
+                    return JsonConvert.SerializeObject(new
+                    {
+                        LoginMessage = "Użytkownik nie istnieje",
+                        PartialView = RenderPartialView("_LoginPanel", userToLogin)
+                    });
+                }
+                case UserActionResult.AccountNotActivated:
+                {
+                    return JsonConvert.SerializeObject(new
+                    {
+                        LoginMessage = "Konto Nieaktywne",
+                        PartialView = RenderPartialView("_LoginPanel", userToLogin)
+                    });
+                }
+                case UserActionResult.AccountLocked:
+                {
+                    int? secondsToUnlock = null;
+                    if (user.LockedDateTime != null)
+                        secondsToUnlock = (int) (15 * 60 - DateTime.Now.Subtract((DateTime) user.LockedDateTime).TotalSeconds);
+                    if (secondsToUnlock < 0)
+                        secondsToUnlock = 0;
+
+                    var timeToUnlock = secondsToUnlock != null
+                        ? $"{secondsToUnlock / 60:00}" + ":" + $"{secondsToUnlock % 60:00}" // string.Format("{0:00}", secondsToUnlock % 60) 
+                        : "błąd";
+
+                    return JsonConvert.SerializeObject(new
+                    {
+                        LoginMessage = $"Zablokowano. Spróbuj za: {timeToUnlock}",
+                        PartialView = RenderPartialView("_LoginPanel", userToLogin)
+                    });
+                }
+                case UserActionResult.DatabaseError:
+                {
+                    return JsonConvert.SerializeObject(new
+                    {
+                        LoginMessage = "Baza Danych nie odpowiada",
+                        PartialView = RenderPartialView("_LoginPanel", userToLogin)
+                    });
+                }
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+        }
+
+        public string Logout()
+        {
+            // Usuń Sesję
+            Session.Remove("LoggedUser");
+
+            // Usuń Cookie
+            if (Request.Cookies["LoggedUser"] != null)
+            {
+                Response.SetCookie(new HttpCookie("LoggedUser")
+                {
+                    Expires = DateTime.Now.AddDays(-1),
+                    Value = null
+                });
+            }
+
+            return JsonConvert.SerializeObject(new
+            {
+                PartialView = RenderPartialView("_LoginPanel", new UserToLoginViewModel())
+            }); 
         }
     }
 }
